@@ -3,6 +3,7 @@
 // =========================================================================
 let currentUser = null;
 let currentRole = '';
+let currentTenant = null;
 let allPelangganCache = [];
 let allTagihanCache = [];
 let allUsersCache = [];
@@ -59,7 +60,7 @@ function parseGAS(res) {
 }
 
 // =========================================================================
-// PENGHUBUNG BACKEND GOOGLE APPS SCRIPT (google.script.run -> Code.gs)
+// PENGHUBUNG BACKEND GOOGLE APPS SCRIPT (google.script.run -> Supabase)
 // =========================================================================
 function panggilServer(namaFungsi, argsArray, onSuccess, onFailure) {
     const runner = window.google && window.google.script && window.google.script.run;
@@ -86,6 +87,7 @@ function panggilServer(namaFungsi, argsArray, onSuccess, onFailure) {
         if (typeof onFailure === 'function') onFailure(err);
     }
 }
+
 function formatRupiah(angka) {
     const num = Number(angka) || 0;
     return 'Rp ' + num.toLocaleString('id-ID');
@@ -134,7 +136,9 @@ function getInitials(name) {
 
 function getActorPayload() {
     if (!currentUser) return null;
+    const idDesa = currentUser.id_desa || (window.getActiveIdDesa ? window.getActiveIdDesa() : 'DESA-001');
     return {
+        id_desa: idDesa,
         id_user: currentUser.id_user || currentUser.id_pelanggan || '',
         nama: currentUser.nama_lengkap || currentUser.nama_pelanggan || currentUser.username || 'Admin',
         role: currentRole || 'admin',
@@ -144,7 +148,9 @@ function getActorPayload() {
 
 function getSessionPayloadPelanggan() {
     if (!currentUser) return null;
+    const idDesa = currentUser.id_desa || (window.getActiveIdDesa ? window.getActiveIdDesa() : 'DESA-001');
     return {
+        id_desa: idDesa,
         role: currentRole || 'pelanggan',
         id_pelanggan: currentUser.id_pelanggan || ''
     };
@@ -156,7 +162,6 @@ function userHasPerm(permKey) {
     if (role !== 'admin') return false;
 
     const raw = String(currentUser.hak_akses || '').trim().toUpperCase();
-    // Anggap kosong, FULL_ACCESS, atau ALL sebagai akses penuh ke semua panel
     if (!raw || raw === 'FULL_ACCESS' || raw === 'ALL') return true;
 
     const perms = raw.split(',').map(s => s.trim().toLowerCase());
@@ -383,8 +388,18 @@ if (formLoginEl) {
                 const res = parseGAS(rawRes);
 
                 if (res.status === 'success') {
-                    currentUser = res.data;
-                    currentRole = res.role;
+                    currentUser = res.data || res.user;
+                    currentRole = res.role || (currentUser && currentUser.role) || role;
+
+                    if (res.tenant) {
+                        currentTenant = res.tenant;
+                        window.currentTenant = res.tenant;
+                        if (typeof window.setActiveIdDesa === 'function') {
+                            window.setActiveIdDesa(res.tenant.id_desa);
+                        }
+                    } else if (currentUser && currentUser.id_desa && typeof window.setActiveIdDesa === 'function') {
+                        window.setActiveIdDesa(currentUser.id_desa);
+                    }
 
                     currentAdminMenu = 'admin-dashboard';
                     lastActivityTs = Date.now();
@@ -440,6 +455,7 @@ function simpanSesi() {
     sesiTulis(JSON.stringify({
         role: currentRole,
         user: currentUser,
+        tenant: currentTenant,
         menu: currentAdminMenu,
         lastActive: lastActivityTs
     }));
@@ -522,6 +538,11 @@ function pulihkanSesiSaatMuat() {
     }
     currentUser = s.user;
     currentRole = s.role;
+    currentTenant = s.tenant || null;
+    if (currentTenant) window.currentTenant = currentTenant;
+    if (currentUser && currentUser.id_desa && typeof window.setActiveIdDesa === 'function') {
+        window.setActiveIdDesa(currentUser.id_desa);
+    }
     currentAdminMenu = s.menu || 'admin-dashboard';
     lastActivityTs = Date.now();
     simpanSesi();
@@ -531,6 +552,8 @@ function pulihkanSesiSaatMuat() {
 function logout() {
     currentUser = null;
     currentRole = '';
+    currentTenant = null;
+    window.currentTenant = null;
     currentAdminMenu = 'admin-dashboard';
     sesiHapus();
     ['adminSidebar', 'mobileOverlay', 'petugasSidebar', 'petugasOverlay', 'pelangganSidebar', 'pelangganOverlay'].forEach(id => {
