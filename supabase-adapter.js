@@ -1636,7 +1636,7 @@
   });
 
   // ==========================================================================
-  // 7. FOOTER DEVELOPER (TEPAT DI SAMPING PEMBATAS PANEL KIRI)
+  // 7. FOOTER DEVELOPER (TUNGGAL & IKUT SCROLL DI SEMUA PERAN)
   // ==========================================================================
   function injectDeveloperFooter() {
     if (!document.getElementById('bumdesDevFooterStyle')) {
@@ -1657,6 +1657,7 @@
           color: #64748b;
           letter-spacing: 0.1px;
           user-select: none;
+          flex-shrink: 0;
         }
         .bumdes-dev-footer .footer-italic {
           font-style: italic;
@@ -1676,8 +1677,19 @@
       document.head.appendChild(style);
     }
 
-    const targets = document.querySelectorAll('.admin-main-content, #panel-petugas .content-area, #panel-pelanggan .content-area');
-    targets.forEach((container) => {
+    // Bersihkan footer ganda di wadah luar (.content-area) jika sudah ada .admin-main-content
+    document.querySelectorAll('.content-area').forEach((area) => {
+      if (area.querySelector('.admin-main-content')) {
+        Array.from(area.children).forEach((child) => {
+          if (child.classList && child.classList.contains('bumdes-dev-footer')) {
+            child.remove();
+          }
+        });
+      }
+    });
+
+    // Pasang hanya 1 footer di dalam area scroll utama (.admin-main-content)
+    document.querySelectorAll('.admin-main-content').forEach((container) => {
       if (container.querySelector('.bumdes-dev-footer')) return;
 
       const footer = document.createElement('footer');
@@ -1694,6 +1706,148 @@
   window.addEventListener('DOMContentLoaded', injectDeveloperFooter);
   window.addEventListener('tenant-branding-ready', injectDeveloperFooter);
 
+  // ==========================================================================
+  // 8. TOGGLE MINIMIZE / TAMPILKAN PANEL KIRI (DESKTOP & HP)
+  // ==========================================================================
+  function initSidebarCollapseToggle() {
+    if (!document.getElementById('bumdesSidebarToggleStyle')) {
+      const style = document.createElement('style');
+      style.id = 'bumdesSidebarToggleStyle';
+      style.textContent = `
+        @media (min-width: 769px) {
+          .sidebar,
+          #panel-admin .sidebar,
+          #panel-petugas .sidebar,
+          #panel-pelanggan .sidebar {
+            transition: transform 0.22s ease, left 0.22s ease !important;
+          }
+          .content-area,
+          #panel-admin .content-area,
+          #panel-petugas .content-area,
+          #panel-pelanggan .content-area,
+          .spark-topbar,
+          #panel-admin .spark-topbar,
+          #panel-petugas .spark-topbar,
+          #panel-pelanggan .spark-topbar {
+            transition: margin-left 0.22s ease, left 0.22s ease !important;
+          }
+
+          body.bumdes-sidebar-collapsed .sidebar,
+          body.bumdes-sidebar-collapsed #panel-admin .sidebar,
+          body.bumdes-sidebar-collapsed #panel-petugas .sidebar,
+          body.bumdes-sidebar-collapsed #panel-pelanggan .sidebar {
+            transform: translateX(-100%) !important;
+            left: -240px !important;
+          }
+
+          body.bumdes-sidebar-collapsed .content-area,
+          body.bumdes-sidebar-collapsed #panel-admin .content-area,
+          body.bumdes-sidebar-collapsed #panel-petugas .content-area,
+          body.bumdes-sidebar-collapsed #panel-pelanggan .content-area {
+            margin-left: 0 !important;
+            width: 100% !important;
+          }
+
+          body.bumdes-sidebar-collapsed .spark-topbar,
+          body.bumdes-sidebar-collapsed #panel-admin .spark-topbar,
+          body.bumdes-sidebar-collapsed #panel-petugas .spark-topbar,
+          body.bumdes-sidebar-collapsed #panel-pelanggan .spark-topbar {
+            left: 0 !important;
+          }
+        }
+
+        /* Perbaikan posisi tumpukan & lebar menu kiri khusus layar HP */
+        @media (max-width: 768px) {
+          .sidebar,
+          #panel-admin .sidebar,
+          #panel-petugas .sidebar,
+          #panel-pelanggan .sidebar {
+            width: 240px !important;
+            z-index: 1055 !important;
+          }
+          .overlay {
+            z-index: 1040 !important;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.querySelectorAll('.spark-topbar button').forEach((btn) => {
+      const isToggleBtn =
+        btn.querySelector('.fa-bars, .fa-outdent, .fa-indent, .bi-list') ||
+        /sidebar|menu/i.test(btn.getAttribute('onclick') || '') ||
+        (btn.nextElementSibling && btn.nextElementSibling.classList.contains('spark-breadcrumb'));
+
+      if (isToggleBtn) {
+        btn.setAttribute('data-sidebar-toggle-btn', 'true');
+        btn.setAttribute('title', 'Sembunyikan / Tampilkan Menu Kiri');
+        btn.style.cursor = 'pointer';
+      }
+    });
+  }
+
+  function closeMobileSidebar() {
+    document.querySelectorAll('.sidebar.show').forEach((el) => el.classList.remove('show'));
+    document.querySelectorAll('.overlay.show').forEach((el) => el.classList.remove('show'));
+  }
+
+  function toggleLeftPanel() {
+    if (window.innerWidth <= 768) {
+      const activePanel = document.querySelector('.panel-view.panel-active') || document;
+      const sidebar = activePanel.querySelector('.sidebar');
+      const overlay = activePanel.querySelector('.overlay') || document.querySelector('.overlay');
+      const willOpen = sidebar && !sidebar.classList.contains('show');
+      closeMobileSidebar();
+      if (willOpen && sidebar) {
+        sidebar.classList.add('show');
+        if (overlay) overlay.classList.add('show');
+      }
+    } else {
+      document.body.classList.toggle('bumdes-sidebar-collapsed');
+    }
+  }
+
+  window.toggleLeftPanel = toggleLeftPanel;
+
+  document.addEventListener('click', (e) => {
+    // 1. Klik area gelap luar sidebar di HP -> tutup sidebar
+    if (e.target.classList && e.target.classList.contains('overlay')) {
+      closeMobileSidebar();
+      return;
+    }
+
+    // 2. Klik salah satu item menu di sidebar saat mode HP -> jalankan menu lalu tutup sidebar
+    if (window.innerWidth <= 768 && e.target.closest('.sidebar .menu-btn')) {
+      setTimeout(closeMobileSidebar, 60);
+      return;
+    }
+
+    // 3. Klik tombol garis tiga di topbar -> buka/tutup panel kiri
+    const btn = e.target.closest('button, [data-sidebar-toggle-btn]');
+    if (!btn) return;
+
+    const inTopbar = btn.closest('.spark-topbar');
+    if (!inTopbar) return;
+
+    const isToggleBtn =
+      btn.hasAttribute('data-sidebar-toggle-btn') ||
+      btn.querySelector('.fa-bars, .fa-outdent, .fa-indent, .bi-list') ||
+      /sidebar|menu/i.test(btn.getAttribute('onclick') || '') ||
+      (btn.nextElementSibling && btn.nextElementSibling.classList.contains('spark-breadcrumb'));
+
+    if (isToggleBtn) {
+      if (btn.hasAttribute('onclick')) btn.removeAttribute('onclick');
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      toggleLeftPanel();
+    }
+  }, true);
+
+  window.addEventListener('DOMContentLoaded', initSidebarCollapseToggle);
+  window.addEventListener('tenant-branding-ready', initSidebarCollapseToggle);
+  
   // ==========================================================================
   // 8. TOGGLE MINIMIZE / TAMPILKAN PANEL KIRI (TOMBOL GARIS TIGA TOPBAR)
   // ==========================================================================
