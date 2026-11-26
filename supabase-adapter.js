@@ -1849,7 +1849,7 @@
   window.addEventListener('tenant-branding-ready', initSidebarCollapseToggle);
   
   // ==========================================================================
-  // 8. TOGGLE MINIMIZE / TAMPILKAN PANEL KIRI (TOMBOL GARIS TIGA TOPBAR)
+  // 8. TOGGLE MINIMIZE / TAMPILKAN PANEL KIRI (DESKTOP & HP)
   // ==========================================================================
   function initSidebarCollapseToggle() {
     if (!document.getElementById('bumdesSidebarToggleStyle')) {
@@ -1897,6 +1897,27 @@
             left: 0 !important;
           }
         }
+
+        @media (max-width: 768px) {
+          .panel-view.panel-active {
+            animation: none !important;
+            position: relative;
+            z-index: 1045 !important;
+          }
+          .sidebar,
+          #panel-admin .sidebar,
+          #panel-petugas .sidebar,
+          #panel-pelanggan .sidebar {
+            width: 240px !important;
+            z-index: 1060 !important;
+          }
+          .sidebar.show {
+            left: 0 !important;
+          }
+          .overlay {
+            z-index: 1040 !important;
+          }
+        }
       `;
       document.head.appendChild(style);
     }
@@ -1915,13 +1936,27 @@
     });
   }
 
+  function closeMobileSidebar() {
+    document.querySelectorAll('.sidebar.show').forEach((el) => el.classList.remove('show'));
+    document.querySelectorAll('.overlay.show').forEach((el) => el.classList.remove('show'));
+  }
+
   function toggleLeftPanel() {
     if (window.innerWidth <= 768) {
       const activePanel = document.querySelector('.panel-view.panel-active') || document;
       const sidebar = activePanel.querySelector('.sidebar');
       const overlay = activePanel.querySelector('.overlay') || document.querySelector('.overlay');
-      if (sidebar) sidebar.classList.toggle('show');
-      if (overlay) overlay.classList.toggle('show');
+      const willOpen = sidebar && !sidebar.classList.contains('show');
+      closeMobileSidebar();
+      if (willOpen && sidebar) {
+        sidebar.style.zIndex = '1060';
+        sidebar.style.width = '240px';
+        sidebar.classList.add('show');
+        if (overlay) {
+          overlay.style.zIndex = '1040';
+          overlay.classList.add('show');
+        }
+      }
     } else {
       document.body.classList.toggle('bumdes-sidebar-collapsed');
     }
@@ -1930,6 +1965,19 @@
   window.toggleLeftPanel = toggleLeftPanel;
 
   document.addEventListener('click', (e) => {
+    // 1. Klik area gelap di luar sidebar -> tutup menu
+    if (e.target.classList && e.target.classList.contains('overlay')) {
+      closeMobileSidebar();
+      return;
+    }
+
+    // 2. Klik salah satu item menu di dalam sidebar pada HP -> jalankan perpindahan menu lalu tutup sidebar
+    if (window.innerWidth <= 768 && e.target.closest('.sidebar .menu-btn')) {
+      setTimeout(closeMobileSidebar, 140);
+      return;
+    }
+
+    // 3. Klik tombol garis tiga di topbar -> buka/tutup panel kiri
     const btn = e.target.closest('button, [data-sidebar-toggle-btn]');
     if (!btn) return;
 

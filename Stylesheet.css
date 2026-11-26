@@ -487,11 +487,17 @@
    }
 
    @media (max-width: 768px) {
+       .panel-view.panel-active {
+           animation: none !important;
+           position: relative;
+           z-index: 1045 !important;
+       }
+
        .sidebar {
-           position: fixed;
-           z-index: 1050;
+           position: fixed !important;
+           z-index: 1060 !important;
            left: -250px;
-           width: 240px;
+           width: 240px !important;
            transition: left 0.25s ease;
            top: 0;
            bottom: 0;
@@ -504,7 +510,7 @@
        }
 
        .sidebar.show {
-           left: 0;
+           left: 0 !important;
        }
 
        .overlay {
@@ -515,7 +521,7 @@
            width: 100%;
            height: 100%;
            background: rgba(17, 24, 39, 0.45);
-           z-index: 10199;
+           z-index: 1040 !important;
        }
 
        .overlay.show {
@@ -533,6 +539,7 @@
        #panel-pelanggan .spark-topbar {
            left: 0;
            padding: 0 14px;
+           z-index: 1020 !important;
        }
    }
 
