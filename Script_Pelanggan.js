@@ -182,7 +182,7 @@
           datasets: [{
             label: 'Pemakaian Air (m³)',
             data: chartData.map(x => x.pemakaian),
-            backgroundColor: '#f05a28',
+            backgroundColor: '#0284c7',
             borderRadius: 6
           }]
         },
@@ -273,7 +273,7 @@
       if (!t) return;
       document.getElementById('plgModalStrukBody').innerHTML =
         '<div class="text-center border-bottom pb-3 mb-3">' +
-        '<div class="fw-bold text-primary">PDAM BUMDES PERCOBAAN</div>' +
+        '<div class="fw-bold text-primary">Sistem Tagihan Air BUMDes</div>' +
         '<div class="small text-muted">Bukti Pembayaran Sah Pelanggan</div>' +
         '<span class="badge bg-success mt-2 px-3 py-1">LUNAS</span></div>' +
         '<div class="small">' +
@@ -490,7 +490,7 @@
       if (qrisBox && qrisImg) {
         if (info && info.qris && info.qris.image_url) {
           qrisImg.src = info.qris.image_url;
-          if (qrisLabel) qrisLabel.textContent = info.qris.label || 'Scan QRIS BUMDes PERCOBAAN';
+          if (qrisLabel) qrisLabel.textContent = info.qris.label || 'Scan QRIS BUMDes Pengelola Air Bersih';
           qrisBox.classList.remove('d-none');
         } else {
           qrisBox.classList.add('d-none');
@@ -500,7 +500,7 @@
 
     function salinNoRekening(btn) {
       const raw = btn.getAttribute('data-norek') || '', teks = raw.replace(/[^0-9]/g, '') || raw;
-      const sukses = () => Swal.fire({ icon: 'success', title: 'Nomor rekening disalin', text: teks, timer: 1400, showConfirmButton: false });
+      const sukses = () => Swal.fire({ icon: 'success', title: 'Nomor rekening disalin', text: teks, timer: 11990, showConfirmButton: false });
       const fallback = () => {
         const ta = document.createElement('textarea'); ta.value = teks; ta.style.position = 'fixed'; ta.style.opacity = '0';
         document.body.appendChild(ta); ta.select();
@@ -580,7 +580,7 @@
         return;
       }
       const nominal = last ? last.nominal : (pil ? pil.nominal : 0), periode = last ? last.periode : (pil ? pil.periode : '-'), tgl = last ? last.tgl_transfer : document.getElementById('byr_tgl_transfer').value;
-      const baris = ['Halo Admin BUMDes PERCOBAAN, saya ingin konfirmasi pembayaran tagihan air.', '', 'ID Pelanggan: ' + (currentUser.id_pelanggan || '-'), 'Nama: ' + (currentUser.nama_pelanggan || '-'), 'Periode: ' + periode, 'Total Transfer: ' + formatRupiah(nominal), 'Tanggal Transfer: ' + (tgl || '-'), (last && last.bukti_url) ? ('Bukti transfer: ' + last.bukti_url) : 'Bukti transfer saya lampirkan pada chat ini.'];
+      const baris = ['Halo Admin BUMDes Pengelola Air Bersih, saya ingin konfirmasi pembayaran tagihan air.', '', 'ID Pelanggan: ' + (currentUser.id_pelanggan || '-'), 'Nama: ' + (currentUser.nama_pelanggan || '-'), 'Periode: ' + periode, 'Total Transfer: ' + formatRupiah(nominal), 'Tanggal Transfer: ' + (tgl || '-'), (last && last.bukti_url) ? ('Bukti transfer: ' + last.bukti_url) : 'Bukti transfer saya lampirkan pada chat ini.'];
       const url = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(baris.join('\n'));
       const w = window.open(url, '_blank');
       if (!w) Swal.fire({ icon: 'info', title: 'Buka WhatsApp', html: '<a href="' + escapeHtml(url) + '" target="_blank" class="btn btn-success fw-bold"><i class="fab fa-whatsapp me-1"></i> Buka WhatsApp</a>', showConfirmButton: false, showCloseButton: true });

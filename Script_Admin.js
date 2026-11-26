@@ -756,12 +756,31 @@ function cetakNotaPrintPreview(idTagihan) {
             const res = parseGAS(rawRes);
             if (res.status === 'success' && res.data) {
                 const d = res.data;
+                const tenant = (typeof window.getActiveTenant === 'function' ? window.getActiveTenant() : null) || {};
+                const tpl = tenant.template_surat || {};
+
+                const namaBumdes = escapeHtml(tenant.nama_bumdes || 'BUMDes Pengelola Air Bersih');
+                const namaUnit = escapeHtml(tenant.nama_unit || 'Unit Layanan Air Bersih (PDAM Desa)');
+                const alamatKop = tenant.alamat_kop && tenant.alamat_kop !== '-'
+                    ? '<br><small style="color:#555;">' + escapeHtml(tenant.alamat_kop) + '</small>'
+                    : '';
+                const logoKopHtml = tenant.logo_url
+                    ? '<img src="' + escapeHtml(tenant.logo_url) + '" alt="Logo" style="width:54px;height:54px;object-fit:contain;margin-right:12px;">'
+                    : '';
+                const footerNota = escapeHtml(tpl.footer_nota || 'Terima kasih telah melakukan pembayaran tepat waktu. Simpan nota ini sebagai bukti pembayaran yang sah.');
+                const ttdHtml = (tpl.nama_ttd || tpl.ttd_url)
+                    ? '<div style="margin-top:24px;display:flex;justify-content:flex-end;"><div style="text-align:center;min-width:180px;font-size:12px;">' +
+                      '<div>' + escapeHtml(tpl.jabatan_ttd || 'Ketua Unit Air Bersih') + '</div>' +
+                      (tpl.ttd_url ? '<img src="' + escapeHtml(tpl.ttd_url) + '" style="height:52px;object-fit:contain;margin:4px auto;display:block;">' : '<div style="height:48px;"></div>') +
+                      '<div><strong><u>' + escapeHtml(tpl.nama_ttd || '') + '</u></strong></div></div></div>'
+                    : '';
+
                 const win = window.open('', '_blank', 'width=820,height=680');
                 win.document.write(
                     '<!DOCTYPE html><html><head><title>Nota Pembayaran ' + escapeHtml(d.invoice_no) + '</title>' +
-                    '<style>body{font-family:Arial,sans-serif;padding:28px;color:#111;max-width:760px;margin:auto;}.toolbar{background:#f3f4f6;padding:10px 14px;border-radius:8px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;}.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;}.btn-pdf{background:#f05a28;color:#fff;}.btn-cls{background:#e5e7eb;color:#111;}.kop{border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;}table{width:100%;border-collapse:collapse;margin-top:12px;}th,td{border:1px solid #d1d5db;padding:8px 10px;font-size:13px;}th{background:#f9fafb;text-align:left;}.r{text-align:right;}.lunas{border:2px solid #16a34a;color:#16a34a;padding:4px 10px;font-weight:bold;border-radius:6px;display:inline-block;}@media print{.toolbar{display:none!important;}body{padding:0;}}</style></head><body>' +
+                    '<style>body{font-family:Arial,sans-serif;padding:28px;color:#111;max-width:760px;margin:auto;}.toolbar{background:#f3f4f6;padding:10px 14px;border-radius:8px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;}.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;}.btn-pdf{background:#0284c7;color:#fff;}.btn-cls{background:#e5e7eb;color:#111;}.kop{border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}.kop-left{display:flex;align-items:center;}table{width:100%;border-collapse:collapse;margin-top:12px;}th,td{border:1px solid #d1d5db;padding:8px 10px;font-size:13px;}th{background:#f9fafb;text-align:left;}.r{text-align:right;}.lunas{border:2px solid #16a34a;color:#16a34a;padding:4px 10px;font-weight:bold;border-radius:6px;display:inline-block;}@media print{.toolbar{display:none!important;}body{padding:0;}}</style></head><body>' +
                     '<div class="toolbar"><span>Pratinjau Nota Tagihan Air</span><div><button class="btn btn-pdf" onclick="window.print()">Cetak / Simpan PDF</button> <button class="btn btn-cls" onclick="window.close()">Tutup</button></div></div>' +
-                    '<div class="kop"><div><h3 style="margin:0;">BUMDES PERCOBAAN</h3><small>Unit Layanan Air Bersih (PDAM Desa)</small></div><div style="text-align:right;"><div class="lunas">LUNAS</div><br><small>No: ' + escapeHtml(d.invoice_no) + '</small></div></div>' +
+                    '<div class="kop"><div class="kop-left">' + logoKopHtml + '<div><h3 style="margin:0;">' + namaBumdes + '</h3><small>' + namaUnit + '</small>' + alamatKop + '</div></div><div style="text-align:right;"><div class="lunas">LUNAS</div><br><small>No: ' + escapeHtml(d.invoice_no) + '</small></div></div>' +
                     '<table style="margin-bottom:14px;"><tr><th width="22%">ID Pelanggan</th><td width="28%">' + escapeHtml(d.id_pelanggan) + '</td><th width="22%">Periode</th><td width="28%">' + escapeHtml(d.periode_bulan) + '</td></tr>' +
                     '<tr><th>Nama</th><td>' + escapeHtml(d.nama_pelanggan) + '</td><th>Tgl Bayar</th><td>' + escapeHtml(d.tanggal_invoice) + '</td></tr>' +
                     '<tr><th>Alamat</th><td>Dusun ' + escapeHtml(d.dusun) + ' ' + escapeHtml(d.rt_rw) + '</td><th>Metode</th><td>' + escapeHtml(d.metode_bayar) + '</td></tr></table>' +
@@ -770,7 +789,8 @@ function cetakNotaPrintPreview(idTagihan) {
                     '<tr><td>Biaya Admin / Beban</td><td class="r">-</td><td class="r">' + formatRupiah(d.biaya_admin) + '</td></tr>' +
                     '<tr><td>Denda Keterlambatan</td><td class="r">-</td><td class="r">' + formatRupiah(d.denda) + '</td></tr>' +
                     '<tr><th colspan="2" class="r">TOTAL DIBAYAR</th><th class="r">' + formatRupiah(d.total_bayar) + '</th></tr></tbody></table>' +
-                    '<p style="margin-top:24px;font-size:12px;color:#555;">Terima kasih telah melakukan pembayaran tepat waktu. Simpan nota ini sebagai bukti pembayaran yang sah.</p></body></html>'
+                    ttdHtml +
+                    '<p style="margin-top:20px;font-size:12px;color:#555;">' + footerNota + '</p></body></html>'
                 );
                 win.document.close();
             } else { Swal.fire('Gagal', res.message || 'Data nota tidak ditemukan.', 'error'); }
@@ -787,15 +807,26 @@ function cetakStrukTermal(idTagihan) {
             const res = parseGAS(rawRes);
             if (res.status === 'success' && res.data) {
                 const d = res.data;
+                const tenant = (typeof window.getActiveTenant === 'function' ? window.getActiveTenant() : null) || {};
+                const tpl = tenant.template_surat || {};
+
+                const namaBumdes = escapeHtml(tenant.nama_bumdes || 'BUMDes Pengelola Air Bersih');
+                const namaUnit = escapeHtml(tenant.nama_unit || 'Unit Layanan Air Bersih');
+                const alamatKop = tenant.alamat_kop && tenant.alamat_kop !== '-' ? '<br>' + escapeHtml(tenant.alamat_kop) : '';
+                const logoTermalHtml = tenant.logo_url
+                    ? '<img src="' + escapeHtml(tenant.logo_url) + '" alt="Logo" style="width:42px;height:42px;object-fit:contain;filter:grayscale(100%) contrast(150%);margin-bottom:4px;"><br>'
+                    : '';
+                const footerTermal = escapeHtml(tpl.footer_nota || 'Terima Kasih');
+
                 const win = window.open('', '_blank', 'width=360,height=600');
                 win.document.write(
                     '<html><head><title>Struk ' + escapeHtml(d.invoice_no) + '</title><style>body{font-family:monospace;width:58mm;margin:0 auto;padding:8px;font-size:12px;}.center{text-align:center;}.line{border-top:1px dashed #000;margin:6px 0;}table{width:100%;font-size:12px;}td.r{text-align:right;}</style></head><body onload="window.print();">' +
-                    '<div class="center"><strong>BUMDES PERCOBAAN</strong><br>Unit Layanan Air Bersih<br>BUKTI PEMBAYARAN</div><div class="line"></div>' +
+                    '<div class="center">' + logoTermalHtml + '<strong>' + namaBumdes + '</strong><br>' + namaUnit + alamatKop + '<br>BUKTI PEMBAYARAN</div><div class="line"></div>' +
                     '<div>No: ' + escapeHtml(d.invoice_no) + '</div><div>Tgl: ' + escapeHtml(d.tanggal_invoice) + '</div><div>ID : ' + escapeHtml(d.id_pelanggan) + '</div><div>Nama: ' + escapeHtml(d.nama_pelanggan) + '</div>' +
                     '<div>Wilayah: ' + escapeHtml(d.dusun) + ' ' + escapeHtml(d.rt_rw) + '</div><div>Periode: ' + escapeHtml(d.periode_bulan) + '</div><div>Pakai: ' + d.total_pemakaian + ' m3</div><div class="line"></div>' +
                     '<table><tr><td>Tagihan Air</td><td class="r">' + Number(d.tagihan_air).toLocaleString('id-ID') + '</td></tr><tr><td>Biaya Admin</td><td class="r">' + Number(d.biaya_admin).toLocaleString('id-ID') + '</td></tr>' +
                     '<tr><td>Denda</td><td class="r">' + Number(d.denda).toLocaleString('id-ID') + '</td></tr><tr><td><strong>TOTAL</strong></td><td class="r"><strong>Rp ' + Number(d.total_bayar).toLocaleString('id-ID') + '</strong></td></tr></table>' +
-                    '<div class="line"></div><div class="center">Status: LUNAS<br>Terima Kasih</div></body></html>'
+                    '<div class="line"></div><div class="center">Status: LUNAS<br>' + footerTermal + '</div></body></html>'
                 );
                 win.document.close();
             } else { Swal.fire('Gagal', res.message, 'error'); }
@@ -930,7 +961,7 @@ function loadLaporanKeuangan() {
                 : topDel.map((d, idx) => {
                     const hpClean = String(d.no_hp || '').replace(/[^0-9]/g, '');
                     const waNum = hpClean.startsWith('0') ? '62' + hpClean.slice(1) : hpClean;
-                    const pesanWa = encodeURIComponent('Yth. Bapak/Ibu ' + d.nama_pelanggan + ' (' + d.id_pelanggan + '), tagihan air PDAM BUMDes PERCOBAAN Anda menunggak ' + d.jumlah_bulan + ' bulan sebesar ' + formatRupiah(d.total_tunggakan) + '. Mohon segera melakukan pembayaran.melalui transfer ke rek. bank & konfirmasi melalui aplikasi atau WA di nomer ini. Terima kasih.');
+                    const pesanWa = encodeURIComponent('Yth. Bapak/Ibu ' + d.nama_pelanggan + ' (' + d.id_pelanggan + '), tagihan air Sistem Tagihan Air BUMDes Anda menunggak ' + d.jumlah_bulan + ' bulan sebesar ' + formatRupiah(d.total_tunggakan) + '. Mohon segera melakukan pembayaran.melalui transfer ke rek. bank & konfirmasi melalui aplikasi atau WA di nomer ini. Terima kasih.');
                     const waBtn = waNum ? '<a href="https://wa.me/' + waNum + '?text=' + pesanWa + '" target="_blank" class="btn btn-xs btn-success py-1 px-2"><i class="fab fa-whatsapp me-1"></i>Tagih WA</a>' : '<span class="text-muted small">No HP Kosong</span>';
                     return '<tr><td class="fw-bold">' + (idx + 1) + '</td><td><div class="fw-bold text-dark">' + escapeHtml(d.nama_pelanggan) + '</div><small class="text-muted">' + escapeHtml(d.id_pelanggan) + '</small></td>' +
                         '<td class="small">' + escapeHtml(d.dusun) + (d.rt_rw && d.rt_rw !== '-' ? ' RT/RW ' + escapeHtml(d.rt_rw) : '') + '</td>' +
@@ -1000,7 +1031,7 @@ function renderChartPemakaianAir(arusKasData) {
         type: 'line',
         data: {
             labels: arusKasData.map(d => d.periode),
-            datasets: [{ label: 'Pemakaian (m³)', data: arusKasData.map(d => Number(d.kubikasi) || 0), borderColor: '#f05a28', backgroundColor: 'rgba(240, 90, 40, 0.12)', fill: true, tension: 0.3 }]
+            datasets: [{ label: 'Pemakaian (m³)', data: arusKasData.map(d => Number(d.kubikasi) || 0), borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.12)', fill: true, tension: 0.3 }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
     });
@@ -1491,12 +1522,38 @@ function cetakSuratSPK(idSpk) {
             if (res.status !== 'success' || !res.data) { Swal.fire('Gagal', res.message || 'Data SPK tidak ditemukan.', 'error'); return; }
             const s = res.data;
             const isGantiAtauPsb = String(s.jenis_mutasi || '').includes('Ganti Meteran') || String(s.jenis_mutasi || '').includes('Pasang Baru');
-            const win = window.open('', '_blank', 'width=850,height=900');
+
+            // Ambil identitas desa & template surat resmi dari Master
+            const tenant = (typeof window.getActiveTenant === 'function' ? window.getActiveTenant() : null) || {};
+            const tpl = (s.template_surat && Object.keys(s.template_surat).length ? s.template_surat : tenant.template_surat) || {};
+
+            const rawNamaBumdes = (s.nama_bumdes && s.nama_bumdes !== '-' ? s.nama_bumdes : tenant.nama_bumdes) || 'BUMDES PENGELOLA AIR';
+            const rawNamaDesa = (s.nama_desa && s.nama_desa !== '-' ? s.nama_desa : (tenant.nama_desa || (s.desa && s.desa !== '-' ? s.desa : ''))) || '';
+            const rawNamaUnit = (s.nama_unit && s.nama_unit !== '-' ? s.nama_unit : tenant.nama_unit) || 'Unit Pengelolaan Air Bersih';
+            const rawAlamatKop = (s.alamat_kop && s.alamat_kop !== '-' ? s.alamat_kop : tenant.alamat_kop) || rawNamaDesa || '-';
+            const logoUrl = s.logo_url || tenant.logo_url || '';
+
+            const logoKopHtml = logoUrl
+                ? '<img src="' + escapeHtml(logoUrl) + '" alt="Logo" style="width:62px;height:62px;object-fit:contain;">'
+                : '';
+            const subUnitText = escapeHtml(rawNamaUnit).toUpperCase() + (rawNamaDesa ? ' (' + escapeHtml(rawNamaDesa).toUpperCase() + ')' : '');
+            const desaAlamatLabel = !rawNamaDesa
+                ? '-'
+                : (/^desa\b/i.test(rawNamaDesa.trim()) ? rawNamaDesa.trim() : 'Desa ' + rawNamaDesa.trim());
+
+            const jabatanTtd = escapeHtml(tpl.jabatan_ttd || 'Pengelola PDAM BUMDes');
+            const namaTtd = escapeHtml(tpl.nama_ttd || '');
+            const ttdImgHtml = tpl.ttd_url
+                ? '<img src="' + escapeHtml(tpl.ttd_url) + '" alt="TTD" style="height:56px;object-fit:contain;margin:4px auto;display:block;">'
+                : '<div class="ttd-space"></div>';
+            const namaTtdLabel = namaTtd ? '<strong><u>' + namaTtd + '</u></strong>' : '____________________';
+
+            const win = window.open('', '_blank', 'width=850,height=1320');
             win.document.write(
                 '<!DOCTYPE html><html><head><title>Surat SPK ' + escapeHtml(s.id_spk) + '</title>' +
-                '<style>body{font-family:"Times New Roman",serif;color:#111;margin:0;padding:24px;background:#f3f4f6;}.toolbar{max-width:780px;margin:0 auto 14px;background:#fff;padding:10px 16px;border-radius:8px;border:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;font-family:Arial,sans-serif;}.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;}.btn-pdf{background:#f05a28;color:#fff;}.btn-close{background:#e5e7eb;color:#111;margin-left:6px;}.sheet{max-width:780px;margin:0 auto;background:#fff;padding:36px 42px;border:1px solid #d1d5db;box-shadow:0 2px 8px rgba(0,0,0,.06);}.kop{text-align:center;border-bottom:3px double #111;padding-bottom:10px;margin-bottom:18px;}.kop h2{margin:0;font-size:18px;letter-spacing:.5px;}.kop p{margin:3px 0 0;font-size:12px;}.title{text-align:center;margin-bottom:18px;}.title h3{margin:0;text-decoration:underline;font-size:15px;}.title span{font-size:12px;}table.info{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px;}table.info th,table.info td{border:1px solid #374151;padding:7px 10px;vertical-align:top;text-align:left;}table.info th{background:#f3f4f6;width:28%;}.box-ket{border:1px solid #374151;padding:10px 12px;min-height:54px;font-size:13px;margin-bottom:18px;}.ttd-grid{display:table;width:100%;margin-top:26px;font-size:13px;text-align:center;}.ttd-col{display:table-cell;width:33.33%;vertical-align:top;}.ttd-space{height:64px;}@media print{body{background:#fff;padding:0;}.toolbar{display:none!important;}.sheet{border:none;box-shadow:none;padding:10px;max-width:100%;}}</style></head><body>' +
+                '<style>body{font-family:"Times New Roman",serif;color:#111;margin:0;padding:24px;background:#f3f4f6;}.toolbar{max-width:780px;margin:0 auto 14px;background:#fff;padding:10px 16px;border-radius:8px;border:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;font-family:Arial,sans-serif;}.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;}.btn-pdf{background:#0284c7;color:#fff;}.btn-close{background:#e5e7eb;color:#111;margin-left:6px;}.sheet{max-width:780px;margin:0 auto;background:#fff;padding:36px 42px;border:1px solid #d1d5db;box-shadow:0 2px 8px rgba(0,0,0,.06);}.kop{display:flex;align-items:center;justify-content:center;gap:14px;text-align:center;border-bottom:3px double #111;padding-bottom:10px;margin-bottom:18px;}.kop h2{margin:0;font-size:18px;letter-spacing:.5px;}.kop p{margin:3px 0 0;font-size:12px;}.title{text-align:center;margin-bottom:18px;}.title h3{margin:0;text-decoration:underline;font-size:15px;}.title span{font-size:12px;}table.info{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px;}table.info th,table.info td{border:1px solid #374151;padding:7px 10px;vertical-align:top;text-align:left;}table.info th{background:#f3f4f6;width:28%;}.box-ket{border:1px solid #374151;padding:10px 12px;min-height:54px;font-size:13px;margin-bottom:18px;}.ttd-grid{display:table;width:100%;margin-top:26px;font-size:13px;text-align:center;}.ttd-col{display:table-cell;width:33.33%;vertical-align:top;}.ttd-space{height:64px;}@media print{body{background:#fff;padding:0;}.toolbar{display:none!important;}.sheet{border:none;box-shadow:none;padding:10px;max-width:100%;}}</style></head><body>' +
                 '<div class="toolbar"><span><strong>Pratinjau Cetak / PDF Surat SPK</strong> (' + escapeHtml(s.id_spk) + ')</span><div><button class="btn btn-pdf" onclick="window.print()">Cetak / Simpan sebagai PDF</button><button class="btn btn-close" onclick="window.close()">Tutup</button></div></div>' +
-                '<div class="sheet"><div class="kop"><h2>BUMDES PERCOBAAN</h2><p>UNIT PENGELOLAAN AIR BERSIH (PDAM DESA PERCOBAAN)</p><p>Desa Percobaan, Kecamatan Palang, Kabupaten Tuban</p></div>' +
+                '<div class="sheet"><div class="kop">' + logoKopHtml + '<div><h2>' + escapeHtml(rawNamaBumdes).toUpperCase() + '</h2><p>' + subUnitText + '</p><p>' + escapeHtml(rawAlamatKop) + '</p></div></div>' +
                 '<div class="title"><h3>SURAT PERINTAH KERJA (SPK) & BERITA ACARA TEKNIK</h3><span>Nomor: ' + escapeHtml(s.id_spk) + ' &nbsp;|&nbsp; Tanggal Terbit: ' + escapeHtml(s.tanggal) + '</span></div>' +
                 '<p style="font-size:13px;margin-bottom:10px;">Dengan ini menugaskan kepada Petugas Lapangan untuk melaksanakan pekerjaan teknik / mutasi sambungan air dengan rincian sebagai berikut:</p>' +
                 '<table class="info"><tr><th>Jenis Pekerjaan / Mutasi</th><td><strong>' + escapeHtml(s.jenis_mutasi) + '</strong></td></tr>' +
@@ -1506,13 +1563,13 @@ function cetakSuratSPK(idSpk) {
                 '<table class="info"><tr><th>ID Pelanggan</th><td>' + escapeHtml(s.id_pelanggan) + ' (Golongan: ' + escapeHtml(s.golongan) + ')</td></tr>' +
                 '<tr><th>Nama Pelanggan</th><td><strong>' + escapeHtml(s.nama_pelanggan) + '</strong></td></tr>' +
                 '<tr><th>NIK / No. HP</th><td>' + escapeHtml(s.nik) + ' / ' + escapeHtml(s.no_hp) + '</td></tr>' +
-                '<tr><th>Alamat Pemasangan</th><td>Dusun ' + escapeHtml(s.dusun) + ', RT/RW ' + escapeHtml(s.rt_rw) + ', Desa ' + escapeHtml(s.desa) + '</td></tr>' +
+                '<tr><th>Alamat Pemasangan</th><td>Dusun ' + escapeHtml(s.dusun) + ', RT/RW ' + escapeHtml(s.rt_rw) + ', ' + escapeHtml(desaAlamatLabel) + '</td></tr>' +
                 (isGantiAtauPsb ? '<tr><th>Stand Meter</th><td>Stand Akhir Meter Lama: <strong>' + (Number(s.meter_lama_akhir) || 0) + ' m³</strong> &nbsp;|&nbsp; Stand Awal Meter Baru: <strong>' + (Number(s.meter_baru_awal) || 0) + ' m³</strong></td></tr>' : '') + '</table>' +
                 '<div style="font-size:13px;font-weight:bold;margin-bottom:4px;">Perintah Kerja / Catatan Lapangan:</div><div class="box-ket">' + escapeHtml(s.keterangan || '-') + '</div>' +
                 '<p style="font-size:12px;line-height:1.5;">Demikian Surat Perintah Kerja & Berita Acara ini dibuat untuk dilaksanakan dengan penuh tanggung jawab dan dipergunakan sebagaimana mestinya.</p>' +
                 '<div class="ttd-grid"><div class="ttd-col"><div>Pelanggan / Pemohon,</div><div class="ttd-space"></div><div>( ' + escapeHtml(s.nama_pelanggan) + ' )</div></div>' +
                 '<div class="ttd-col"><div>Petugas Lapangan,</div><div class="ttd-space"></div><div>( ' + escapeHtml(s.petugas_teknik || '....................') + ' )</div></div>' +
-                '<div class="ttd-col"><div>Mengetahui,<br>Pengelola PDAM BUMDes</div><div class="ttd-space"></div><div>( ____________________ )</div></div></div></div></body></html>'
+                '<div class="ttd-col"><div>Mengetahui,<br>' + jabatanTtd + '</div>' + ttdImgHtml + '<div>( ' + namaTtdLabel + ' )</div></div></div></div></body></html>'
             );
             win.document.close();
         },

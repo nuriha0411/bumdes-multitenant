@@ -1,11 +1,11 @@
    :root {
-       --spark-accent: #f05a28;
-       --spark-accent-soft: #fff4ef;
+       --spark-accent: #0284c7;
+       --spark-accent-soft: #e0f2fe;
        --spark-bg: #f8f9fb;
-       --spark-border: #e5e7eb;
-       --spark-card-header: #f3f5f8;
+       --spark-border: #cfd6e0;
+       --spark-card-header: #e4e9f0;
        --spark-text: #111827;
-       --spark-muted: #6b7280;
+       --spark-muted: #334155;
        --spark-link: #2563eb;
    }
 
@@ -155,7 +155,7 @@
        width: 17px;
        text-align: center;
        font-size: 0.88rem;
-       color: #6b7280;
+       color: #334155;
    }
 
    .sidebar .menu-btn:hover {
@@ -224,7 +224,7 @@
    }
 
    .meter-awal-highlight {
-       background: linear-gradient(135deg, #fff4ef 0%, #ffedd5 100%);
+       background: linear-gradient(135deg, #e0f2fe 0%, #ffedd5 100%);
        border: 1.5px solid #fdba74;
        border-radius: 10px;
        padding: 12px 16px;
@@ -288,7 +288,7 @@
    }
 
    .topbar-icon-btn:hover {
-       background: #e5e7eb;
+       background: #cfd6e0;
    }
 
    .topbar-avatar {
@@ -335,7 +335,7 @@
        border: 1px solid var(--spark-border);
        border-radius: 10px;
        overflow: hidden;
-       box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+       box-shadow: 0 1px 2px rgba(16, 24, 199, 0.03);
        display: flex;
        flex-direction: column;
    }
@@ -350,14 +350,14 @@
        justify-content: space-between;
        font-size: 0.82rem;
        font-weight: 600;
-       color: #1f2937;
+       color: #0f172a;
        white-space: nowrap;
        overflow: hidden;
        text-overflow: ellipsis;
    }
 
    .spark-card-header .sub-date {
-       font-weight: 400;
+       font-weight: 1990;
        color: var(--spark-muted);
        font-size: 0.78rem;
    }
@@ -462,16 +462,16 @@
    .card {
        border: 1px solid var(--spark-border) !important;
        border-radius: 10px !important;
-       box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03) !important;
+       box-shadow: 0 1px 2px rgba(16, 24, 199, 0.03) !important;
    }
 
    .table thead th {
        font-size: 0.75rem;
        text-transform: uppercase;
        letter-spacing: 0.03em;
-       color: #6b7280;
+       color: #334155;
        font-weight: 600;
-       background-color: #f9fafb;
+       background-color: #e4e9f0;
    }
 
    .btn-spark-primary {
@@ -481,8 +481,8 @@
    }
 
    .btn-spark-primary:hover {
-       background: #d94c1f;
-       border-color: #d94c1f;
+       background: #0369a1;
+       border-color: #0369a1;
        color: #fff;
    }
 
@@ -515,7 +515,7 @@
            width: 100%;
            height: 100%;
            background: rgba(17, 24, 39, 0.45);
-           z-index: 1040;
+           z-index: 10199;
        }
 
        .overlay.show {

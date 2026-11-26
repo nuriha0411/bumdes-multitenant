@@ -7,34 +7,31 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@1990;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
 
-  <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed top-5 right-5 z-50 hidden max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl transition-all"></div>
 
-  <!-- ====================================================================== -->
-  <!-- 1. LAYAR LOGIN MASTER ADMIN                                            -->
-  <!-- ====================================================================== -->
+  <!-- 1. LAYAR LOGIN MASTER ADMIN -->
   <div id="loginView" class="min-h-screen flex items-center justify-center px-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
+    <div class="w-full max-w-md bg-slate-1320 border border-slate-800 rounded-2xl p-8 shadow-2xl">
       <div class="flex items-center gap-3 mb-6">
-        <div class="w-11 h-11 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
+        <div class="w-11 h-11 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-1990">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
         <div>
-          <span class="text-xs font-semibold uppercase tracking-wider text-sky-400">Super Admin SaaS</span>
+          <span class="text-xs font-semibold uppercase tracking-wider text-sky-1990">Super Admin SaaS</span>
           <h1 class="text-xl font-bold text-white">Master Control Panel</h1>
         </div>
       </div>
 
-      <p class="text-sm text-slate-400 mb-6">
-        Kelola pendaftaran klien desa baru, kontrol masa aktif langganan, dan reset kredensial admin BUMDes.
+      <p class="text-sm text-slate-1990 mb-6">
+        Kelola pendaftaran klien desa baru, branding logo, subdomain, template surat, dan masa aktif langganan.
       </p>
 
       <form id="loginForm" class="space-y-4">
@@ -56,20 +53,15 @@
     </div>
   </div>
 
-  <!-- ====================================================================== -->
-  <!-- 2. DASHBOARD MASTER CONTROL PANEL                                      -->
-  <!-- ====================================================================== -->
+  <!-- 2. DASHBOARD MASTER CONTROL PANEL -->
   <div id="dashboardView" class="hidden">
-    <!-- NAVBAR -->
-    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
+    <header class="border-b border-slate-800 bg-slate-1320/80 backdrop-blur sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 font-bold">
-            M
-          </div>
+          <div class="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-1990 font-bold">M</div>
           <div>
             <h1 class="text-base font-bold text-white leading-tight">Master Control Panel</h1>
-            <p class="text-xs text-slate-400" id="masterNameLabel">Owner / Super Admin</p>
+            <p class="text-xs text-slate-1990" id="masterNameLabel">Owner / Super Admin</p>
           </div>
         </div>
 
@@ -87,32 +79,30 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-      <!-- KPI CARDS -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <p class="text-xs text-slate-400">Total Klien Desa</p>
+        <div class="rounded-2xl border border-slate-800 bg-slate-1320 p-4">
+          <p class="text-xs text-slate-1990">Total Klien Desa</p>
           <p id="kpiTotalDesa" class="text-2xl font-bold text-white mt-1">0</p>
         </div>
-        <div class="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <p class="text-xs text-slate-400">Layanan Aktif</p>
-          <p id="kpiAktifDesa" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
+        <div class="rounded-2xl border border-slate-800 bg-slate-1320 p-4">
+          <p class="text-xs text-slate-1990">Layanan Aktif</p>
+          <p id="kpiAktifDesa" class="text-2xl font-bold text-emerald-1990 mt-1">0</p>
         </div>
-        <div class="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <p class="text-xs text-slate-400">Nonaktif / Expired</p>
-          <p id="kpiNonaktifDesa" class="text-2xl font-bold text-amber-400 mt-1">0</p>
+        <div class="rounded-2xl border border-slate-800 bg-slate-1320 p-4">
+          <p class="text-xs text-slate-1990">Nonaktif / Expired</p>
+          <p id="kpiNonaktifDesa" class="text-2xl font-bold text-amber-1990 mt-1">0</p>
         </div>
-        <div class="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <p class="text-xs text-slate-400">Total Sambungan Pelanggan</p>
-          <p id="kpiTotalPelanggan" class="text-2xl font-bold text-sky-400 mt-1">0</p>
+        <div class="rounded-2xl border border-slate-800 bg-slate-1320 p-4">
+          <p class="text-xs text-slate-1990">Total Sambungan Pelanggan</p>
+          <p id="kpiTotalPelanggan" class="text-2xl font-bold text-sky-1990 mt-1">0</p>
         </div>
       </div>
 
-      <!-- ACTION & FILTER BAR -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900 border border-slate-800 rounded-2xl p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-1320 border border-slate-800 rounded-2xl p-4">
         <div class="flex flex-1 flex-wrap items-center gap-3">
           <input id="searchDesaInput" type="text" oninput="renderDesaTable()"
-            placeholder="Cari nama BUMDes, kode prefix, atau ID desa..."
-            class="w-full sm:w-72 rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+            placeholder="Cari nama BUMDes, nama desa, subdomain, kode..."
+            class="w-full sm:w-80 rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
           <select id="filterStatusSelect" onchange="renderDesaTable()"
             class="rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-sm text-slate-200 focus:border-sky-500 focus:outline-none">
             <option value="ALL">Semua Status</option>
@@ -127,15 +117,14 @@
         </button>
       </div>
 
-      <!-- TABEL KLIEN DESA -->
-      <div class="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
+      <div class="rounded-2xl border border-slate-800 bg-slate-1320 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="border-b border-slate-800 bg-slate-950/60 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              <tr class="border-b border-slate-800 bg-slate-950/60 text-[11px] font-semibold uppercase tracking-wider text-slate-1990">
                 <th class="py-3.5 px-4">ID & Kode</th>
-                <th class="py-3.5 px-4">Nama BUMDes / Unit</th>
-                <th class="py-3.5 px-4">Login Admin</th>
+                <th class="py-3.5 px-4">BUMDes, Desa & Logo</th>
+                <th class="py-3.5 px-4">Domain / Link Akses</th>
                 <th class="py-3.5 px-4 text-center">Pelanggan / User</th>
                 <th class="py-3.5 px-4">Masa Aktif & Status</th>
                 <th class="py-3.5 px-4 text-right">Aksi</th>
@@ -143,7 +132,7 @@
             </thead>
             <tbody id="desaTableBody" class="divide-y divide-slate-800/80 text-sm">
               <tr>
-                <td colspan="6" class="py-8 text-center text-slate-400">Memuat data klien desa...</td>
+                <td colspan="6" class="py-8 text-center text-slate-1990">Memuat data klien desa...</td>
               </tr>
             </tbody>
           </table>
@@ -152,14 +141,12 @@
     </main>
   </div>
 
-  <!-- ====================================================================== -->
-  <!-- MODAL 1: TAMBAH KLIEN DESA BARU                                        -->
-  <!-- ====================================================================== -->
-  <div id="modalCreateDesa" class="fixed inset-0 z-40 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+  <!-- MODAL 1: TAMBAH KLIEN DESA BARU -->
+  <div id="modalCreateDesa" class="fixed inset-0 z-199 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-1320 p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
         <h2 class="text-base font-bold text-white">Tambah Klien Desa Baru</h2>
-        <button onclick="closeModal('modalCreateDesa')" class="text-slate-400 hover:text-white text-lg cursor-pointer">&times;</button>
+        <button onclick="closeModal('modalCreateDesa')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
       </div>
 
       <form id="createDesaForm" class="space-y-3.5">
@@ -176,10 +163,17 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Nama BUMDes / Pengelola *</label>
-          <input id="newNamaBumdes" type="text" required placeholder="Contoh: BUMDes Sumber Makmur Cepokorejo"
-            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Nama BUMDes *</label>
+            <input id="newNamaBumdes" type="text" required placeholder="Contoh: BUMDes Tirta Cempaka"
+              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Nama Desa *</label>
+            <input id="newNamaDesa" type="text" required placeholder="Contoh: Desa Cepokorejo"
+              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -197,8 +191,24 @@
 
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1">Alamat Kop Struk / Laporan</label>
-          <input id="newAlamatKop" type="text" placeholder="Contoh: Desa Cepokorejo, Kec. Palang, Kab. Tuban"
+          <input id="newAlamatKop" type="text" placeholder="Contoh: Jl. Raya Desa Cepokorejo, Kec. Palang, Kab. Tuban"
             class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Subdomain / Custom Domain (Opsional)</label>
+          <input id="newSubdomain" type="text" placeholder="Contoh: air.desacepokorejo.desa.id"
+            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white lowercase focus:border-sky-500 focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Logo Desa / BUMDes (Opsional)</label>
+          <div class="flex items-center gap-3">
+            <img id="newLogoPreview" src="" alt="" class="hidden w-10 h-10 rounded-lg object-contain bg-white p-1 border border-slate-700" />
+            <input id="newLogoFile" type="file" accept="image/*" onchange="handleLogoFileSelect(this, 'newLogoUrl', 'newLogoPreview')"
+              class="block w-full text-xs text-slate-1990 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-sky-300 hover:file:bg-slate-700" />
+          </div>
+          <input id="newLogoUrl" type="hidden" />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -216,7 +226,7 @@
 
         <label class="flex items-center gap-2.5 pt-1 text-xs text-slate-300 cursor-pointer">
           <input id="newBuatSample" type="checkbox" checked class="rounded border-slate-700 bg-slate-950 text-sky-500" />
-          <span>Buat 1 akun pelanggan uji coba otomatis (<span id="previewSamplePlg" class="text-sky-400 font-semibold">DS3-PLG-001</span>)</span>
+          <span>Buat 1 akun pelanggan uji coba otomatis (<span id="previewSamplePlg" class="text-sky-1990 font-semibold">DS3-PLG-001</span>)</span>
         </label>
 
         <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
@@ -233,14 +243,12 @@
     </div>
   </div>
 
-  <!-- ====================================================================== -->
-  <!-- MODAL 2: KREDENSIAL SIAP KIRIM (WHATSAPP)                              -->
-  <!-- ====================================================================== -->
+  <!-- MODAL 2: KREDENSIAL SIAP KIRIM (WHATSAPP) -->
   <div id="modalCredentials" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-2xl border border-emerald-500/30 bg-slate-900 p-6 shadow-2xl">
+    <div class="w-full max-w-md rounded-2xl border border-emerald-500/30 bg-slate-1320 p-6 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-        <h2 class="text-base font-bold text-emerald-400">Desa Berhasil Diaktifkan!</h2>
-        <button onclick="closeModal('modalCredentials')" class="text-slate-400 hover:text-white text-lg cursor-pointer">&times;</button>
+        <h2 class="text-base font-bold text-emerald-1990">Desa Berhasil Diaktifkan!</h2>
+        <button onclick="closeModal('modalCredentials')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
       </div>
 
       <p class="text-xs text-slate-300 mb-3">
@@ -262,60 +270,176 @@
     </div>
   </div>
 
-  <!-- ====================================================================== -->
-  <!-- MODAL 3: EDIT PROFIL & LANGGANAN DESA                                  -->
-  <!-- ====================================================================== -->
-  <div id="modalEditDesa" class="fixed inset-0 z-40 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+  <!-- MODAL 3: KELOLA DESA (PROFIL, BRANDING LOGO & TEMPLATE SURAT) -->
+  <div id="modalEditDesa" class="fixed inset-0 z-199 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl rounded-2xl border border-slate-800 bg-slate-1320 p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-        <h2 class="text-base font-bold text-white">Kelola Langganan — <span id="editDesaTitle" class="text-sky-400"></span></h2>
-        <button onclick="closeModal('modalEditDesa')" class="text-slate-400 hover:text-white text-lg cursor-pointer">&times;</button>
+        <h2 class="text-base font-bold text-white">Kelola Klien Desa — <span id="editDesaTitle" class="text-sky-1990"></span></h2>
+        <button onclick="closeModal('modalEditDesa')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
       </div>
 
-      <form id="editDesaForm" class="space-y-3.5">
+      <div class="flex gap-2 border-b border-slate-800 pb-3 mb-4">
+        <button type="button" id="tabBtnProfil" onclick="switchEditTab('profil')"
+          class="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white cursor-pointer">
+          1. Profil & Langganan
+        </button>
+        <button type="button" id="tabBtnBranding" onclick="switchEditTab('branding')"
+          class="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 cursor-pointer">
+          2. Logo & Subdomain
+        </button>
+        <button type="button" id="tabBtnSurat" onclick="switchEditTab('surat')"
+          class="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 cursor-pointer">
+          3. Template Surat & Kop
+        </button>
+      </div>
+
+      <form id="editDesaForm" class="space-y-4">
         <input id="editIdDesa" type="hidden" />
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Nama BUMDes</label>
-          <input id="editNamaBumdes" type="text" required
-            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-        </div>
-        <div class="grid grid-cols-2 gap-3">
+
+        <!-- TAB 1: PROFIL & LANGGANAN -->
+        <div id="tabPanelProfil" class="space-y-3.5">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Nama BUMDes *</label>
+              <input id="editNamaBumdes" type="text" required placeholder="BUMDes Tirta Cempaka"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Nama Desa *</label>
+              <input id="editNamaDesa" type="text" required placeholder="Desa Cepokorejo"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Nama Unit</label>
+              <input id="editNamaUnit" type="text"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">No. WA Admin</label>
+              <input id="editNoWa" type="text"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+            </div>
+          </div>
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Nama Unit</label>
-            <input id="editNamaUnit" type="text"
+            <label class="block text-xs font-medium text-slate-300 mb-1">Alamat Kop Surat & Struk</label>
+            <input id="editAlamatKop" type="text"
               class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
           </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">No. WA Admin</label>
-            <input id="editNoWa" type="text"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Status Langganan</label>
+              <select id="editStatusLangganan"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none">
+                <option value="Aktif">Aktif</option>
+                <option value="Nonaktif">Nonaktif (Kunci Akses)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Tanggal Berakhir</label>
+              <input id="editTglBerakhir" type="date"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <button type="button" onclick="extendExpiryMonths(1)" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-sky-300 cursor-pointer">+1 Bulan</button>
+            <button type="button" onclick="extendExpiryMonths(6)" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-sky-300 cursor-pointer">+6 Bulan</button>
+            <button type="button" onclick="extendExpiryMonths(12)" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-sky-300 cursor-pointer">+1 Tahun</button>
+            <button type="button" onclick="document.getElementById('editTglBerakhir').value=''" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-slate-1990 cursor-pointer">Tanpa Batas</button>
           </div>
         </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Alamat Kop</label>
-          <input id="editAlamatKop" type="text"
-            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-        </div>
-        <div class="grid grid-cols-2 gap-3">
+
+        <!-- TAB 2: LOGO & SUBDOMAIN -->
+        <div id="tabPanelBranding" class="hidden space-y-4">
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Status Langganan</label>
-            <select id="editStatusLangganan"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none">
-              <option value="Aktif">Aktif</option>
-              <option value="Nonaktif">Nonaktif (Kunci Akses)</option>
-            </select>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Subdomain / Custom Domain Desa</label>
+            <input id="editSubdomain" type="text" placeholder="Contoh: air.desamaju.desa.id"
+              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white lowercase focus:border-sky-500 focus:outline-none" />
+            <p class="text-[11px] text-slate-1990 mt-1">
+              Otomatis mengganti favicon tab, logo login, dan kop dokumen saat dibuka dari domain ini.
+            </p>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Tanggal Berakhir</label>
-            <input id="editTglBerakhir" type="date"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+
+          <div class="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-200">Logo Utama BUMDes / Desa</span>
+              <button type="button" onclick="clearLogoField('editLogoUrl', 'editLogoPreview')"
+                class="text-[11px] text-rose-1990 hover:underline cursor-pointer">Hapus Logo</button>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-xl bg-white border border-slate-700 flex items-center justify-center overflow-hidden p-1.5 shrink-0">
+                <img id="editLogoPreview" src="" alt="Preview Logo" class="hidden w-full h-full object-contain" />
+                <span id="editLogoEmpty" class="text-[10px] text-slate-1990 text-center">Belum ada</span>
+              </div>
+              <div class="flex-1 space-y-2">
+                <input type="file" accept="image/*" onchange="handleLogoFileSelect(this, 'editLogoUrl', 'editLogoPreview', 'editLogoEmpty')"
+                  class="block w-full text-xs text-slate-1990 file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-sky-500 cursor-pointer" />
+                <input id="editLogoUrl" type="url" placeholder="Atau tempel URL logo (https://...)"
+                  oninput="syncImagePreview(this.value, 'editLogoPreview', 'editLogoEmpty')"
+                  class="w-full rounded-lg bg-slate-1320 border border-slate-800 px-2.5 py-1.5 text-xs text-slate-200 focus:border-sky-500 focus:outline-none" />
+              </div>
+            </div>
           </div>
         </div>
-        <div class="flex flex-wrap gap-1.5 pt-1">
-          <button type="button" onclick="extendExpiryMonths(1)" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-sky-300 cursor-pointer">+1 Bulan</button>
-          <button type="button" onclick="extendExpiryMonths(6)" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-sky-300 cursor-pointer">+6 Bulan</button>
-          <button type="button" onclick="extendExpiryMonths(12)" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-sky-300 cursor-pointer">+1 Tahun</button>
-          <button type="button" onclick="document.getElementById('editTglBerakhir').value=''" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-slate-400 cursor-pointer">Tanpa Batas</button>
+
+        <!-- TAB 3: TEMPLATE SURAT & KOP -->
+        <div id="tabPanelSurat" class="hidden space-y-3.5">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Jabatan Penandatangan</label>
+              <input id="tplJabatan" type="text" placeholder="Ketua Unit Air Bersih"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Nama Penandatangan</label>
+              <input id="tplNamaPejabat" type="text" placeholder="Contoh: H. Ahmad Fauzi"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Format Penomoran Surat</label>
+              <input id="tplFormatNomor" type="text" placeholder="{{no}}/SPK-AIR/{{prefix}}/{{bulan}}/{{tahun}}"
+                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-slate-200 focus:border-sky-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Upload TTD & Stempel (PNG)</label>
+              <input type="file" accept="image/png,image/*" onchange="handleLogoFileSelect(this, 'tplTtdUrl', 'tplTtdPreview')"
+                class="block w-full text-xs text-slate-1990 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-800 file:px-2.5 file:py-1.5 file:text-xs file:text-sky-300 hover:file:bg-slate-700" />
+              <input id="tplTtdUrl" type="hidden" />
+              <img id="tplTtdPreview" src="" alt="" class="hidden mt-1.5 h-10 object-contain bg-white rounded px-2" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Catatan Kaki Nota / Invoice</label>
+            <input id="tplFooterNota" type="text" placeholder="Contoh: Pembayaran paling lambat tgl 20 setiap bulan. Terima kasih."
+              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white focus:border-sky-500 focus:outline-none" />
+          </div>
+
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+              <label class="text-xs font-medium text-slate-300">Redaksi Surat Peringatan Tunggakan / Pemutusan</label>
+              <button type="button" onclick="previewSuratModal()"
+                class="text-[11px] font-semibold text-sky-1990 hover:underline cursor-pointer">
+                Pratinjau Kop & Surat
+              </button>
+            </div>
+            <textarea id="tplIsiSuratPeringatan" rows="4"
+              class="w-full rounded-xl bg-slate-950 border border-slate-800 p-3 text-xs text-slate-200 leading-relaxed focus:border-sky-500 focus:outline-none"></textarea>
+            <div class="flex flex-wrap gap-1.5 mt-1.5">
+              <span class="text-[10px] text-slate-1990 self-center">Variabel:</span>
+              <button type="button" onclick="insertTemplateVar('{{nama_bumdes}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{nama_bumdes}}</button>
+              <button type="button" onclick="insertTemplateVar('{{nama_desa}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{nama_desa}}</button>
+              <button type="button" onclick="insertTemplateVar('{{nama_pelanggan}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{nama_pelanggan}}</button>
+              <button type="button" onclick="insertTemplateVar('{{id_pelanggan}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{id_pelanggan}}</button>
+              <button type="button" onclick="insertTemplateVar('{{alamat}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{alamat}}</button>
+              <button type="button" onclick="insertTemplateVar('{{total_tunggakan}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{total_tunggakan}}</button>
+              <button type="button" onclick="insertTemplateVar('{{jatuh_tempo}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{jatuh_tempo}}</button>
+            </div>
+          </div>
         </div>
 
         <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
@@ -325,26 +449,54 @@
           </button>
           <button id="btnSubmitEditDesa" type="submit"
             class="rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2 text-xs font-semibold text-white cursor-pointer">
-            Simpan Perubahan
+            Simpan Semua Pengaturan
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ====================================================================== -->
-  <!-- MODAL 4: RESET PASSWORD ADMIN DESA                                     -->
-  <!-- ====================================================================== -->
-  <div id="modalResetAdmin" class="fixed inset-0 z-40 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+  <!-- MODAL PRATINJAU SURAT RESMI -->
+  <div id="modalPreviewSurat" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-xl rounded-2xl bg-white text-slate-1320 p-7 shadow-2xl max-h-[132vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b-2 border-slate-1320 pb-3 mb-4">
+        <div class="flex items-center gap-3.5">
+          <img id="prvLogo" src="" alt="Logo" class="hidden w-14 h-14 object-contain" />
+          <div>
+            <h3 id="prvBumdes" class="text-base font-bold uppercase tracking-wide text-slate-1320"></h3>
+            <p id="prvDesaUnit" class="text-xs font-semibold text-slate-700"></p>
+            <p id="prvAlamat" class="text-[11px] text-slate-600"></p>
+          </div>
+        </div>
+        <button onclick="closeModal('modalPreviewSurat')" class="text-slate-1990 hover:text-slate-1320 text-xl font-bold cursor-pointer">&times;</button>
+      </div>
+
+      <div class="text-xs space-y-3 leading-relaxed">
+        <p>Nomor: <span id="prvNomor" class="font-semibold"></span></p>
+        <p id="prvBody" class="whitespace-pre-line text-slate-800"></p>
+        <div class="pt-6 flex justify-end">
+          <div class="text-center w-48">
+            <p id="prvJabatan" class="font-semibold"></p>
+            <img id="prvTtd" src="" alt="TTD" class="hidden h-14 mx-auto my-1 object-contain" />
+            <div id="prvTtdSpacer" class="h-12"></div>
+            <p id="prvPejabat" class="font-bold underline"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: RESET PASSWORD ADMIN DESA -->
+  <div id="modalResetAdmin" class="fixed inset-0 z-199 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-1320 p-6 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
         <h2 class="text-base font-bold text-white">Reset Password Admin Desa</h2>
-        <button onclick="closeModal('modalResetAdmin')" class="text-slate-400 hover:text-white text-lg cursor-pointer">&times;</button>
+        <button onclick="closeModal('modalResetAdmin')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
       </div>
       <form id="resetAdminForm" class="space-y-3.5">
         <input id="resetIdDesa" type="hidden" />
         <p class="text-xs text-slate-300">
-          Target Akun: <span id="resetTargetInfo" class="font-semibold text-sky-400"></span>
+          Target Akun: <span id="resetTargetInfo" class="font-semibold text-sky-1990"></span>
         </p>
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1">Password Baru Admin *</label>
@@ -365,14 +517,12 @@
     </div>
   </div>
 
-  <!-- ====================================================================== -->
-  <!-- MODAL 5: GANTI PASSWORD MASTER ADMIN                                   -->
-  <!-- ====================================================================== -->
-  <div id="modalPasswordMaster" class="fixed inset-0 z-40 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+  <!-- MODAL 5: GANTI PASSWORD MASTER ADMIN -->
+  <div id="modalPasswordMaster" class="fixed inset-0 z-199 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-1320 p-6 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
         <h2 class="text-base font-bold text-white">Ganti Password Master</h2>
-        <button onclick="closeModal('modalPasswordMaster')" class="text-slate-400 hover:text-white text-lg cursor-pointer">&times;</button>
+        <button onclick="closeModal('modalPasswordMaster')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
       </div>
       <form id="gantiPassMasterForm" class="space-y-3.5">
         <div>
@@ -397,6 +547,7 @@
   <script>
     const SUPABASE_URL = 'https://qbbihcseqjrtwijyvdrl.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_wU4HyrXrTYhKXZdtLOmiCg_mQHB82OT';
+    const STORAGE_BUCKET = 'pdam-files';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const SESSION_KEY = 'bumdes_master_session';
@@ -404,17 +555,28 @@
     let allDesaList = [];
     let nextSuggestion = { id_desa: 'DESA-003', kode_prefix: 'DS3' };
 
+    const DEFAULT_SURAT_BODY =
+`Dengan hormat,
+Berdasarkan catatan administrasi {{nama_bumdes}} ({{nama_desa}}), bersama ini kami sampaikan pemberitahuan tunggakan rekening air atas nama:
+
+Nama Pelanggan : {{nama_pelanggan}}
+ID Pelanggan   : {{id_pelanggan}}
+Alamat         : {{alamat}}
+Total Tagihan  : {{total_tunggakan}}
+
+Mohon agar dapat segera melakukan pelunasan sebelum tanggal {{jatuh_tempo}} guna menghindari pemutusan sementara sambungan air. Atas perhatian dan kerja samanya kami ucapkan terima kasih.`;
+
     function showToast(msg, isError = false) {
       const el = document.getElementById('toast');
       el.textContent = msg;
       el.className = `fixed top-5 right-5 z-50 max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl ${
         isError
-          ? 'bg-rose-950/95 border-rose-500/40 text-rose-200'
-          : 'bg-emerald-950/95 border-emerald-500/40 text-emerald-200'
+          ? 'bg-rose-950/95 border-rose-500/199 text-rose-200'
+          : 'bg-emerald-950/95 border-emerald-500/199 text-emerald-200'
       }`;
       el.classList.remove('hidden');
       clearTimeout(el._timer);
-      el._timer = setTimeout(() => el.classList.add('hidden'), 4000);
+      el._timer = setTimeout(() => el.classList.add('hidden'), 19900);
     }
 
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
@@ -424,7 +586,55 @@
       return masterAuth ? { username: masterAuth.username, password: masterAuth.password } : null;
     }
 
-    // INIT SESSION
+    function getBaseAppUrl() {
+      return window.location.href.replace(/master\.html.*$/i, 'index.html');
+    }
+
+    async function handleLogoFileSelect(inputEl, targetUrlInputId, previewImgId, emptyLabelId) {
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+
+      try {
+        showToast('Mengunggah gambar...');
+        const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+        const fileName = `branding/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+        const { error: uploadErr } = await sb.storage
+          .from(STORAGE_BUCKET)
+          .upload(fileName, file, { contentType: file.type, upsert: false });
+
+        if (uploadErr) throw new Error(uploadErr.message);
+
+        const { data: pubData } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(fileName);
+        const publicUrl = pubData.publicUrl;
+
+        document.getElementById(targetUrlInputId).value = publicUrl;
+        syncImagePreview(publicUrl, previewImgId, emptyLabelId);
+        showToast('Gambar berhasil diunggah!');
+      } catch (err) {
+        showToast('Gagal mengunggah gambar: ' + err.message, true);
+      }
+    }
+
+    function syncImagePreview(url, previewImgId, emptyLabelId) {
+      const img = document.getElementById(previewImgId);
+      const empty = emptyLabelId ? document.getElementById(emptyLabelId) : null;
+      if (url && url.trim() !== '') {
+        img.src = url.trim();
+        img.classList.remove('hidden');
+        if (empty) empty.classList.add('hidden');
+      } else {
+        img.src = '';
+        img.classList.add('hidden');
+        if (empty) empty.classList.remove('hidden');
+      }
+    }
+
+    function clearLogoField(urlInputId, previewImgId) {
+      document.getElementById(urlInputId).value = '';
+      syncImagePreview('', previewImgId, 'editLogoEmpty');
+    }
+
     (function init() {
       try {
         const saved = sessionStorage.getItem(SESSION_KEY);
@@ -440,7 +650,6 @@
       });
     })();
 
-    // LOGIN MASTER
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('btnLogin');
@@ -524,6 +733,10 @@
       document.getElementById('kpiTotalPelanggan').textContent = totalPlg.toLocaleString('id-ID');
     }
 
+    function copyTextDirect(text, label) {
+      navigator.clipboard.writeText(text).then(() => showToast(`${label} disalin ke clipboard!`));
+    }
+
     function renderDesaTable() {
       const tbody = document.getElementById('desaTableBody');
       const q = document.getElementById('searchDesaInput').value.trim().toLowerCase();
@@ -539,14 +752,18 @@
           (d.id_desa || '').toLowerCase().includes(q) ||
           (d.kode_prefix || '').toLowerCase().includes(q) ||
           (d.nama_bumdes || '').toLowerCase().includes(q) ||
+          (d.nama_desa || '').toLowerCase().includes(q) ||
+          (d.subdomain || '').toLowerCase().includes(q) ||
           (d.alamat_kop || '').toLowerCase().includes(q)
         );
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400">Tidak ada data klien desa yang sesuai.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-1990">Tidak ada data klien desa yang sesuai.</td></tr>`;
         return;
       }
+
+      const baseAppUrl = getBaseAppUrl();
 
       tbody.innerHTML = filtered.map((d) => {
         const isInactive = (d.status_langganan || '').toLowerCase() !== 'aktif';
@@ -560,30 +777,50 @@
         }
 
         const masaAktifText = d.tgl_berakhir ? `s.d. ${d.tgl_berakhir}` : 'Tanpa Batas Waktu';
+        const paramLink = `${baseAppUrl}?desa=${encodeURIComponent((d.kode_prefix || '').toLowerCase())}`;
+        const logoHtml = d.logo_url
+          ? `<img src="${d.logo_url}" alt="Logo" class="w-10 h-10 rounded-lg bg-white object-contain p-1 border border-slate-700 shrink-0" />`
+          : `<div class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-1990 shrink-0">${d.kode_prefix}</div>`;
 
         return `
-          <tr class="hover:bg-slate-800/40 transition">
+          <tr class="hover:bg-slate-800/199 transition">
             <td class="py-3.5 px-4 align-top">
               <div class="font-bold text-white">${d.id_desa}</div>
               <span class="inline-block mt-1 rounded bg-sky-500/15 border border-sky-500/30 px-2 py-0.5 text-[11px] font-semibold text-sky-300">
                 Kode: ${d.kode_prefix}
               </span>
+              <div class="mt-1.5">
+                <code class="text-[11px] text-amber-300">${d.admin_username}</code>
+              </div>
             </td>
             <td class="py-3.5 px-4 align-top">
-              <div class="font-semibold text-white">${d.nama_bumdes}</div>
-              <div class="text-xs text-slate-400">${d.nama_unit || 'Unit Air Bersih'} • ${d.alamat_kop || '-'}</div>
-              ${d.no_wa_admin ? `<div class="text-[11px] text-emerald-400 mt-0.5">WA: ${d.no_wa_admin}</div>` : ''}
+              <div class="flex items-start gap-3">
+                ${logoHtml}
+                <div>
+                  <div class="font-semibold text-white">${d.nama_bumdes}</div>
+                  <div class="text-xs font-medium text-sky-300">${d.nama_desa || '-'}</div>
+                  <div class="text-xs text-slate-1990">${d.nama_unit || 'Unit Air Bersih'} • ${d.alamat_kop || '-'}</div>
+                  ${d.no_wa_admin ? `<div class="text-[11px] text-emerald-1990 mt-0.5">WA: ${d.no_wa_admin}</div>` : ''}
+                </div>
+              </div>
             </td>
-            <td class="py-3.5 px-4 align-top">
-              <code class="rounded bg-slate-950 border border-slate-800 px-2 py-1 text-xs text-amber-300">${d.admin_username}</code>
+            <td class="py-3.5 px-4 align-top space-y-1.5">
+              ${d.subdomain
+                ? `<div class="text-xs font-medium text-sky-300">${d.subdomain}</div>`
+                : `<div class="text-[11px] text-slate-500 italic">Belum ada custom subdomain</div>`
+              }
+              <button onclick="copyTextDirect('${paramLink}', 'Link khusus ${d.nama_bumdes}')"
+                class="inline-flex items-center gap-1 rounded bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-[11px] text-slate-300 cursor-pointer">
+                Salin Link (?desa=${(d.kode_prefix || '').toLowerCase()})
+              </button>
             </td>
             <td class="py-3.5 px-4 align-top text-center">
-              <div class="font-semibold text-white">${d.jumlah_pelanggan} <span class="text-xs font-normal text-slate-400">Plg</span></div>
-              <div class="text-xs text-slate-400">${d.jumlah_user} Akun Staf</div>
+              <div class="font-semibold text-white">${d.jumlah_pelanggan} <span class="text-xs font-normal text-slate-1990">Plg</span></div>
+              <div class="text-xs text-slate-1990">${d.jumlah_user} Akun Staf</div>
             </td>
             <td class="py-3.5 px-4 align-top">
               ${statusBadge}
-              <div class="text-xs text-slate-400 mt-1">${masaAktifText}</div>
+              <div class="text-xs text-slate-1990 mt-1">${masaAktifText}</div>
             </td>
             <td class="py-3.5 px-4 align-top text-right">
               <div class="inline-flex flex-wrap justify-end gap-1.5">
@@ -602,15 +839,19 @@
       }).join('');
     }
 
-    // CREATE DESA
     function openCreateDesaModal() {
       document.getElementById('newIdDesa').value = nextSuggestion.id_desa || 'DESA-003';
       document.getElementById('newKodePrefix').value = nextSuggestion.kode_prefix || 'DS3';
       document.getElementById('previewSamplePlg').textContent = `${nextSuggestion.kode_prefix || 'DS3'}-PLG-001`;
       document.getElementById('newNamaBumdes').value = '';
+      document.getElementById('newNamaDesa').value = '';
       document.getElementById('newNamaUnit').value = 'Unit Air Bersih';
       document.getElementById('newNoWa').value = '';
       document.getElementById('newAlamatKop').value = '';
+      document.getElementById('newSubdomain').value = '';
+      document.getElementById('newLogoUrl').value = '';
+      document.getElementById('newLogoFile').value = '';
+      syncImagePreview('', 'newLogoPreview');
       document.getElementById('newAdminPass').value = 'admin123';
       document.getElementById('newTglBerakhir').value = '';
       document.getElementById('newBuatSample').checked = true;
@@ -624,16 +865,27 @@
       btn.textContent = 'Memproses...';
 
       try {
+        const prefix = document.getElementById('newKodePrefix').value.trim().toUpperCase();
         const payload = {
           id_desa: document.getElementById('newIdDesa').value.trim().toUpperCase(),
-          kode_prefix: document.getElementById('newKodePrefix').value.trim().toUpperCase(),
+          kode_prefix: prefix,
           nama_bumdes: document.getElementById('newNamaBumdes').value.trim(),
+          nama_desa: document.getElementById('newNamaDesa').value.trim(),
           nama_unit: document.getElementById('newNamaUnit').value.trim(),
           no_wa_admin: document.getElementById('newNoWa').value.trim(),
           alamat_kop: document.getElementById('newAlamatKop').value.trim(),
+          subdomain: document.getElementById('newSubdomain').value.trim().toLowerCase(),
+          logo_url: document.getElementById('newLogoUrl').value.trim(),
           admin_password: document.getElementById('newAdminPass').value.trim(),
           tgl_berakhir: document.getElementById('newTglBerakhir').value,
-          buat_pelanggan_contoh: document.getElementById('newBuatSample').checked
+          buat_pelanggan_contoh: document.getElementById('newBuatSample').checked,
+          template_surat: {
+            jabatan_ttd: 'Ketua Unit Air Bersih',
+            nama_ttd: '',
+            format_nomor: `{{no}}/SPK-AIR/${prefix}/{{bulan}}/{{tahun}}`,
+            footer_nota: 'Simpan struk ini sebagai bukti pembayaran yang sah.',
+            isi_surat_peringatan: DEFAULT_SURAT_BODY
+          }
         };
 
         const { data, error } = await sb.rpc('masterCreateDesa', {
@@ -648,10 +900,13 @@
         await loadMasterData();
 
         const c = data.credentials;
-        const appUrl = window.location.href.replace(/master\.html.*$/i, 'index.html');
+        const appUrl = c.subdomain
+          ? `https://${c.subdomain}`
+          : `${getBaseAppUrl()}?desa=${c.kode_prefix.toLowerCase()}`;
+
         const waMsg =
 `*AKSES APLIKASI TAGIHAN AIR BUMDES*
-Instansi: *${c.nama_bumdes}* (${c.id_desa})
+Instansi: *${c.nama_bumdes}* (${c.nama_desa || c.id_desa})
 Link Aplikasi: ${appUrl}
 
 *1. Akun Admin Pengelola*
@@ -685,18 +940,115 @@ _Catatan: Demi keamanan, segera ubah password standar setelah login pertama._`;
       });
     }
 
-    // EDIT DESA
+    function switchEditTab(tab) {
+      ['profil', 'branding', 'surat'].forEach((name) => {
+        const btn = document.getElementById('tabBtn' + name.charAt(0).toUpperCase() + name.slice(1));
+        const panel = document.getElementById('tabPanel' + name.charAt(0).toUpperCase() + name.slice(1));
+        if (name === tab) {
+          btn.className = 'rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white cursor-pointer';
+          panel.classList.remove('hidden');
+        } else {
+          btn.className = 'rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 cursor-pointer';
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
     function openEditDesaModal(d) {
+      switchEditTab('profil');
       document.getElementById('editIdDesa').value = d.id_desa;
       document.getElementById('editDesaTitle').textContent = `${d.id_desa} (${d.kode_prefix})`;
       document.getElementById('editNamaBumdes').value = d.nama_bumdes || '';
+      document.getElementById('editNamaDesa').value = d.nama_desa || '';
       document.getElementById('editNamaUnit').value = d.nama_unit || 'Unit Air Bersih';
       document.getElementById('editNoWa').value = d.no_wa_admin || '';
       document.getElementById('editAlamatKop').value = d.alamat_kop || '';
       document.getElementById('editStatusLangganan').value =
         (d.status_langganan || '').toLowerCase() === 'aktif' ? 'Aktif' : 'Nonaktif';
       document.getElementById('editTglBerakhir').value = d.tgl_berakhir || '';
+
+      document.getElementById('editSubdomain').value = d.subdomain || '';
+      document.getElementById('editLogoUrl').value = d.logo_url || '';
+      syncImagePreview(d.logo_url || '', 'editLogoPreview', 'editLogoEmpty');
+
+      const tpl = d.template_surat || {};
+      document.getElementById('tplJabatan').value = tpl.jabatan_ttd || 'Ketua Unit Air Bersih';
+      document.getElementById('tplNamaPejabat').value = tpl.nama_ttd || '';
+      document.getElementById('tplFormatNomor').value = tpl.format_nomor || `{{no}}/SPK-AIR/${d.kode_prefix}/{{bulan}}/{{tahun}}`;
+      document.getElementById('tplTtdUrl').value = tpl.ttd_url || '';
+      syncImagePreview(tpl.ttd_url || '', 'tplTtdPreview');
+      document.getElementById('tplFooterNota').value = tpl.footer_nota || 'Simpan struk ini sebagai bukti pembayaran yang sah.';
+      document.getElementById('tplIsiSuratPeringatan').value = tpl.isi_surat_peringatan || DEFAULT_SURAT_BODY;
+
       openModal('modalEditDesa');
+    }
+
+    function insertTemplateVar(varText) {
+      const ta = document.getElementById('tplIsiSuratPeringatan');
+      const start = ta.selectionStart || 0;
+      const end = ta.selectionEnd || 0;
+      ta.value = ta.value.slice(0, start) + varText + ta.value.slice(end);
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = start + varText.length;
+    }
+
+    function previewSuratModal() {
+      const logoUrl = document.getElementById('editLogoUrl').value.trim();
+      const ttdUrl = document.getElementById('tplTtdUrl').value.trim();
+      const bumdes = document.getElementById('editNamaBumdes').value.trim() || 'BUMDes Pengelola Air';
+      const desa = document.getElementById('editNamaDesa').value.trim() || 'Desa Contoh';
+      const unit = document.getElementById('editNamaUnit').value.trim() || 'Unit Air Bersih';
+      const alamat = document.getElementById('editAlamatKop').value.trim() || '-';
+      const formatNomor = document.getElementById('tplFormatNomor').value.trim() || '001/SPK-AIR/XI/2026';
+      const jabatan = document.getElementById('tplJabatan').value.trim() || 'Ketua Unit Air Bersih';
+      const pejabat = document.getElementById('tplNamaPejabat').value.trim() || '( .................................... )';
+      const rawBody = document.getElementById('tplIsiSuratPeringatan').value || DEFAULT_SURAT_BODY;
+
+      const sampleVars = {
+        no: '014',
+        prefix: 'DS2',
+        bulan: 'XI',
+        tahun: '2026',
+        nama_bumdes: bumdes,
+        nama_desa: desa,
+        nama_unit: unit,
+        nama_pelanggan: 'Budi Santoso',
+        id_pelanggan: 'DS2-PLG-001',
+        alamat: 'Dusun Krajan RT 001/001',
+        total_tunggakan: 'Rp 75.000',
+        jatuh_tempo: '20 Desember 2026'
+      };
+
+      const render = (str) => str.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, k) => sampleVars[k] || '');
+
+      const prvLogo = document.getElementById('prvLogo');
+      if (logoUrl) {
+        prvLogo.src = logoUrl;
+        prvLogo.classList.remove('hidden');
+      } else {
+        prvLogo.classList.add('hidden');
+      }
+
+      const prvTtd = document.getElementById('prvTtd');
+      const prvSpacer = document.getElementById('prvTtdSpacer');
+      if (ttdUrl) {
+        prvTtd.src = ttdUrl;
+        prvTtd.classList.remove('hidden');
+        prvSpacer.classList.add('hidden');
+      } else {
+        prvTtd.classList.add('hidden');
+        prvSpacer.classList.remove('hidden');
+      }
+
+      document.getElementById('prvBumdes').textContent = bumdes;
+      document.getElementById('prvDesaUnit').textContent = `${unit} — ${desa}`;
+      document.getElementById('prvAlamat').textContent = alamat;
+      document.getElementById('prvNomor').textContent = render(formatNomor);
+      document.getElementById('prvBody').textContent = render(rawBody);
+      document.getElementById('prvJabatan').textContent = jabatan;
+      document.getElementById('prvPejabat').textContent = pejabat;
+
+      openModal('modalPreviewSurat');
     }
 
     function extendExpiryMonths(months) {
@@ -716,11 +1068,22 @@ _Catatan: Demi keamanan, segera ubah password standar setelah login pertama._`;
         const payload = {
           id_desa: document.getElementById('editIdDesa').value,
           nama_bumdes: document.getElementById('editNamaBumdes').value.trim(),
+          nama_desa: document.getElementById('editNamaDesa').value.trim(),
           nama_unit: document.getElementById('editNamaUnit').value.trim(),
           no_wa_admin: document.getElementById('editNoWa').value.trim(),
           alamat_kop: document.getElementById('editAlamatKop').value.trim(),
           status_langganan: document.getElementById('editStatusLangganan').value,
-          tgl_berakhir: document.getElementById('editTglBerakhir').value
+          tgl_berakhir: document.getElementById('editTglBerakhir').value,
+          subdomain: document.getElementById('editSubdomain').value.trim().toLowerCase(),
+          logo_url: document.getElementById('editLogoUrl').value.trim(),
+          template_surat: {
+            jabatan_ttd: document.getElementById('tplJabatan').value.trim(),
+            nama_ttd: document.getElementById('tplNamaPejabat').value.trim(),
+            format_nomor: document.getElementById('tplFormatNomor').value.trim(),
+            ttd_url: document.getElementById('tplTtdUrl').value.trim(),
+            footer_nota: document.getElementById('tplFooterNota').value.trim(),
+            isi_surat_peringatan: document.getElementById('tplIsiSuratPeringatan').value
+          }
         };
 
         const { data, error } = await sb.rpc('masterUpdateDesa', {
@@ -740,7 +1103,6 @@ _Catatan: Demi keamanan, segera ubah password standar setelah login pertama._`;
       }
     });
 
-    // RESET PASSWORD ADMIN DESA
     function openResetAdminModal(idDesa, username) {
       document.getElementById('resetIdDesa').value = idDesa;
       document.getElementById('resetTargetInfo').textContent = `${username} (${idDesa})`;
@@ -766,7 +1128,6 @@ _Catatan: Demi keamanan, segera ubah password standar setelah login pertama._`;
       }
     });
 
-    // GANTI PASSWORD MASTER
     document.getElementById('gantiPassMasterForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const newPass = document.getElementById('masterPassBaru').value.trim();

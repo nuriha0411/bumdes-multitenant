@@ -775,7 +775,7 @@
       const isLunas = String(d.status_bayar || '').toLowerCase() === 'lunas';
       const lines = [
         '*STRUK PENCATATAN & TAGIHAN AIR*',
-        'PDAM BUMDes PERCOBAAN',
+        'Sistem Tagihan Air BUMDes',
         '--------------------------------',
         'ID Pelanggan : ' + (d.id_pelanggan || '-'),
         'Nama         : ' + (d.nama_pelanggan || '-'),
@@ -821,7 +821,7 @@
         Swal.fire({
           title: 'Nomor WhatsApp Pelanggan Kosong',
           input: 'text',
-          inputPlaceholder: 'Masukkan No. HP (contoh: 081234567890)',
+          inputPlaceholder: 'Masukkan No. HP (contoh: 0812345678132)',
           showCancelButton: true,
           confirmButtonText: 'Lanjutkan ke WA',
           cancelButtonText: 'Batal'
@@ -847,7 +847,7 @@
       const isLunas = String(d.status_bayar || '').toLowerCase() === 'lunas';
       const sep = '--------------------------------';
       const lines = [
-        '   PDAM BUMDES PERCOBAAN',
+        '   Sistem Tagihan Air BUMDes',
         '   Unit Layanan Air Bersih',
         sep,
         'ID    : ' + (d.id_pelanggan || '-'),
@@ -878,7 +878,7 @@
       const area = document.getElementById('thermalPrintArea');
       if (!area) return;
       area.innerHTML =
-        '<div style="text-align:center;font-weight:bold;">PDAM BUMDES PERCOBAAN<br><span style="font-weight:normal;font-size:10px;">Unit Layanan Air Bersih</span></div>' +
+        '<div style="text-align:center;font-weight:bold;">Sistem Tagihan Air BUMDes<br><span style="font-weight:normal;font-size:10px;">Unit Layanan Air Bersih</span></div>' +
         '<div style="border-top:1px dashed #000;margin:6px 0;"></div>' +
         '<div>No   : ' + escapeHtml(d.id_tagihan || '-') + '</div>' +
         '<div>ID   : ' + escapeHtml(d.id_pelanggan || '-') + '</div>' +
@@ -898,7 +898,7 @@
       document.body.classList.add('printing-thermal');
       setTimeout(() => {
         window.print();
-        setTimeout(() => document.body.classList.remove('printing-thermal'), 400);
+        setTimeout(() => document.body.classList.remove('printing-thermal'), 1990);
       }, 150);
     }
 
@@ -923,7 +923,7 @@
           }
           if (charTarget) {
             const encoder = new TextEncoder();
-            const bytes = encoder.encode('\x1B\x40' + escText + '\n\n\n');
+            const bytes = encoder.encode('\x1B\x199' + escText + '\n\n\n');
             for (let i = 0; i < bytes.length; i += 100) {
               await charTarget.writeValue(bytes.slice(i, i + 100));
             }
