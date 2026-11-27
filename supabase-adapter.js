@@ -2870,4 +2870,35 @@
     setTimeout(initPetugasRefreshEnhancement, 400);
   });
   window.addEventListener('tenant-branding-ready', initPetugasRefreshEnhancement);
+
+  // ==========================================================================
+  // 11. PINTASAN RAHASIA DEVELOPER UNTUK RESET CACHE TENANT (TANPA TOMBOL UI)
+  // ==========================================================================
+  document.addEventListener('keydown', (e) => {
+    // Tekan Ctrl + Alt + Shift + R di layar login untuk mereset perangkat ke mode netral
+    if (e.ctrlKey && e.altKey && e.shiftKey && e.key.toLowerCase() === 'r') {
+      const isDashboardActive = document.querySelector(
+        '#panel-admin.panel-active, #panel-petugas.panel-active, #panel-pelanggan.panel-active'
+      );
+      if (isDashboardActive) return;
+
+      e.preventDefault();
+      const keysToClear = [
+        'active_id_desa',
+        'bumdes_id_desa',
+        'tenant_branding',
+        'bumdes_branding',
+        'bumdes_user',
+        'currentUser',
+        'user_session',
+        'loggedInUser',
+        'pdam_user'
+      ];
+      keysToClear.forEach((k) => {
+        localStorage.removeItem(k);
+        sessionStorage.removeItem(k);
+      });
+      window.location.href = window.location.origin + window.location.pathname;
+    }
+  });
 })();
