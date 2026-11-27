@@ -1707,149 +1707,7 @@
   window.addEventListener('tenant-branding-ready', injectDeveloperFooter);
 
   // ==========================================================================
-  // 8. TOGGLE MINIMIZE / TAMPILKAN PANEL KIRI (DESKTOP & HP)
-  // ==========================================================================
-  function initSidebarCollapseToggle() {
-    if (!document.getElementById('bumdesSidebarToggleStyle')) {
-      const style = document.createElement('style');
-      style.id = 'bumdesSidebarToggleStyle';
-      style.textContent = `
-        @media (min-width: 769px) {
-          .sidebar,
-          #panel-admin .sidebar,
-          #panel-petugas .sidebar,
-          #panel-pelanggan .sidebar {
-            transition: transform 0.22s ease, left 0.22s ease !important;
-          }
-          .content-area,
-          #panel-admin .content-area,
-          #panel-petugas .content-area,
-          #panel-pelanggan .content-area,
-          .spark-topbar,
-          #panel-admin .spark-topbar,
-          #panel-petugas .spark-topbar,
-          #panel-pelanggan .spark-topbar {
-            transition: margin-left 0.22s ease, left 0.22s ease !important;
-          }
-
-          body.bumdes-sidebar-collapsed .sidebar,
-          body.bumdes-sidebar-collapsed #panel-admin .sidebar,
-          body.bumdes-sidebar-collapsed #panel-petugas .sidebar,
-          body.bumdes-sidebar-collapsed #panel-pelanggan .sidebar {
-            transform: translateX(-100%) !important;
-            left: -240px !important;
-          }
-
-          body.bumdes-sidebar-collapsed .content-area,
-          body.bumdes-sidebar-collapsed #panel-admin .content-area,
-          body.bumdes-sidebar-collapsed #panel-petugas .content-area,
-          body.bumdes-sidebar-collapsed #panel-pelanggan .content-area {
-            margin-left: 0 !important;
-            width: 100% !important;
-          }
-
-          body.bumdes-sidebar-collapsed .spark-topbar,
-          body.bumdes-sidebar-collapsed #panel-admin .spark-topbar,
-          body.bumdes-sidebar-collapsed #panel-petugas .spark-topbar,
-          body.bumdes-sidebar-collapsed #panel-pelanggan .spark-topbar {
-            left: 0 !important;
-          }
-        }
-
-        /* Perbaikan posisi tumpukan & lebar menu kiri khusus layar HP */
-        @media (max-width: 768px) {
-          .sidebar,
-          #panel-admin .sidebar,
-          #panel-petugas .sidebar,
-          #panel-pelanggan .sidebar {
-            width: 240px !important;
-            z-index: 1055 !important;
-          }
-          .overlay {
-            z-index: 1040 !important;
-          }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-
-    document.querySelectorAll('.spark-topbar button').forEach((btn) => {
-      const isToggleBtn =
-        btn.querySelector('.fa-bars, .fa-outdent, .fa-indent, .bi-list') ||
-        /sidebar|menu/i.test(btn.getAttribute('onclick') || '') ||
-        (btn.nextElementSibling && btn.nextElementSibling.classList.contains('spark-breadcrumb'));
-
-      if (isToggleBtn) {
-        btn.setAttribute('data-sidebar-toggle-btn', 'true');
-        btn.setAttribute('title', 'Sembunyikan / Tampilkan Menu Kiri');
-        btn.style.cursor = 'pointer';
-      }
-    });
-  }
-
-  function closeMobileSidebar() {
-    document.querySelectorAll('.sidebar.show').forEach((el) => el.classList.remove('show'));
-    document.querySelectorAll('.overlay.show').forEach((el) => el.classList.remove('show'));
-  }
-
-  function toggleLeftPanel() {
-    if (window.innerWidth <= 768) {
-      const activePanel = document.querySelector('.panel-view.panel-active') || document;
-      const sidebar = activePanel.querySelector('.sidebar');
-      const overlay = activePanel.querySelector('.overlay') || document.querySelector('.overlay');
-      const willOpen = sidebar && !sidebar.classList.contains('show');
-      closeMobileSidebar();
-      if (willOpen && sidebar) {
-        sidebar.classList.add('show');
-        if (overlay) overlay.classList.add('show');
-      }
-    } else {
-      document.body.classList.toggle('bumdes-sidebar-collapsed');
-    }
-  }
-
-  window.toggleLeftPanel = toggleLeftPanel;
-
-  document.addEventListener('click', (e) => {
-    // 1. Klik area gelap luar sidebar di HP -> tutup sidebar
-    if (e.target.classList && e.target.classList.contains('overlay')) {
-      closeMobileSidebar();
-      return;
-    }
-
-    // 2. Klik salah satu item menu di sidebar saat mode HP -> jalankan menu lalu tutup sidebar
-    if (window.innerWidth <= 768 && e.target.closest('.sidebar .menu-btn')) {
-      setTimeout(closeMobileSidebar, 60);
-      return;
-    }
-
-    // 3. Klik tombol garis tiga di topbar -> buka/tutup panel kiri
-    const btn = e.target.closest('button, [data-sidebar-toggle-btn]');
-    if (!btn) return;
-
-    const inTopbar = btn.closest('.spark-topbar');
-    if (!inTopbar) return;
-
-    const isToggleBtn =
-      btn.hasAttribute('data-sidebar-toggle-btn') ||
-      btn.querySelector('.fa-bars, .fa-outdent, .fa-indent, .bi-list') ||
-      /sidebar|menu/i.test(btn.getAttribute('onclick') || '') ||
-      (btn.nextElementSibling && btn.nextElementSibling.classList.contains('spark-breadcrumb'));
-
-    if (isToggleBtn) {
-      if (btn.hasAttribute('onclick')) btn.removeAttribute('onclick');
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      toggleLeftPanel();
-    }
-  }, true);
-
-  window.addEventListener('DOMContentLoaded', initSidebarCollapseToggle);
-  window.addEventListener('tenant-branding-ready', initSidebarCollapseToggle);
-  
-  // ==========================================================================
-  // 8. TOGGLE MINIMIZE / TAMPILKAN PANEL KIRI (DESKTOP & HP)
+  // 8. TOGGLE MINIMIZE / TAMPILKAN PANEL KIRI (DESKTOP & HP + AUTO-CLOSE TAP KANAN)
   // ==========================================================================
   function initSidebarCollapseToggle() {
     if (!document.getElementById('bumdesSidebarToggleStyle')) {
@@ -1908,14 +1766,25 @@
           #panel-admin .sidebar,
           #panel-petugas .sidebar,
           #panel-pelanggan .sidebar {
+            position: fixed !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            left: -260px !important;
             width: 240px !important;
             z-index: 1060 !important;
+            transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: none;
           }
-          .sidebar.show {
+          .sidebar.show,
+          #panel-admin .sidebar.show,
+          #panel-petugas .sidebar.show,
+          #panel-pelanggan .sidebar.show {
             left: 0 !important;
+            box-shadow: 4px 0 24px rgba(15, 23, 42, 0.18) !important;
           }
           .overlay {
             z-index: 1040 !important;
+            cursor: pointer;
           }
         }
       `;
@@ -1936,12 +1805,35 @@
     });
   }
 
+  let lastSidebarToggleAt = 0;
+
+  function isSidebarToggleButton(el) {
+    if (!el) return null;
+    const btn = el.closest('button, [data-sidebar-toggle-btn]');
+    if (!btn || !btn.closest('.spark-topbar')) return null;
+
+    const matched =
+      btn.hasAttribute('data-sidebar-toggle-btn') ||
+      btn.querySelector('.fa-bars, .fa-outdent, .fa-indent, .bi-list') ||
+      /sidebar|menu/i.test(btn.getAttribute('onclick') || '') ||
+      (btn.nextElementSibling && btn.nextElementSibling.classList.contains('spark-breadcrumb'));
+
+    return matched ? btn : null;
+  }
+
   function closeMobileSidebar() {
-    document.querySelectorAll('.sidebar.show').forEach((el) => el.classList.remove('show'));
+    document.querySelectorAll('.sidebar.show').forEach((el) => {
+      el.style.left = '';
+      el.classList.remove('show');
+    });
     document.querySelectorAll('.overlay.show').forEach((el) => el.classList.remove('show'));
   }
 
   function toggleLeftPanel() {
+    const now = Date.now();
+    if (now - lastSidebarToggleAt < 250) return;
+    lastSidebarToggleAt = now;
+
     if (window.innerWidth <= 768) {
       const activePanel = document.querySelector('.panel-view.panel-active') || document;
       const sidebar = activePanel.querySelector('.sidebar');
@@ -1964,34 +1856,65 @@
 
   window.toggleLeftPanel = toggleLeftPanel;
 
+  // Sentuh area kanan di luar panel menu kiri pada HP -> otomatis geser menutup ke kiri
+  function handleOutsideSidebarTouch(e) {
+    if (window.innerWidth > 768) return;
+    const openSidebar = document.querySelector('.sidebar.show');
+    if (!openSidebar) return;
+
+    // Jika sentuhan berada di dalam panel menu kiri, biarkan interaksi menu berjalan normal
+    if (e.target.closest && e.target.closest('.sidebar')) return;
+
+    // Jika sentuhan mengenai tombol garis tiga topbar, serahkan ke handler toggle
+    if (isSidebarToggleButton(e.target)) return;
+
+    lastSidebarToggleAt = Date.now();
+    closeMobileSidebar();
+    if (e.cancelable) e.preventDefault();
+    e.stopPropagation();
+  }
+
+  document.addEventListener('touchstart', handleOutsideSidebarTouch, { capture: true, passive: false });
+  document.addEventListener('pointerdown', handleOutsideSidebarTouch, true);
+
+  // Dukungan geser jari ke kiri (swipe left) untuk menutup panel menu di HP
+  let swipeStartX = 0;
+  let swipeStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    if (window.innerWidth > 768 || !e.touches || !e.touches[0]) return;
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    if (window.innerWidth > 768 || !e.changedTouches || !e.changedTouches[0]) return;
+    const openSidebar = document.querySelector('.sidebar.show');
+    if (!openSidebar) return;
+
+    const diffX = e.changedTouches[0].clientX - swipeStartX;
+    const diffY = e.changedTouches[0].clientY - swipeStartY;
+    if (diffX < -50 && Math.abs(diffX) > Math.abs(diffY)) {
+      closeMobileSidebar();
+    }
+  }, { passive: true });
+
   document.addEventListener('click', (e) => {
-    // 1. Klik area gelap di luar sidebar -> tutup menu
+    // 1. Klik area gelap luar sidebar -> tutup menu
     if (e.target.classList && e.target.classList.contains('overlay')) {
       closeMobileSidebar();
       return;
     }
 
-    // 2. Klik salah satu item menu di dalam sidebar pada HP -> jalankan perpindahan menu lalu tutup sidebar
+    // 2. Klik salah satu item menu di dalam sidebar pada HP -> pindah halaman lalu tutup sidebar
     if (window.innerWidth <= 768 && e.target.closest('.sidebar .menu-btn')) {
       setTimeout(closeMobileSidebar, 140);
       return;
     }
 
     // 3. Klik tombol garis tiga di topbar -> buka/tutup panel kiri
-    const btn = e.target.closest('button, [data-sidebar-toggle-btn]');
-    if (!btn) return;
-
-    const inTopbar = btn.closest('.spark-topbar');
-    if (!inTopbar) return;
-
-    const isToggleBtn =
-      btn.hasAttribute('data-sidebar-toggle-btn') ||
-      btn.querySelector('.fa-bars, .fa-outdent, .fa-indent, .bi-list') ||
-      /sidebar|menu/i.test(btn.getAttribute('onclick') || '') ||
-      (btn.nextElementSibling && btn.nextElementSibling.classList.contains('spark-breadcrumb'));
-
-    if (isToggleBtn) {
-      if (btn.hasAttribute('onclick')) btn.removeAttribute('onclick');
+    const toggleBtn = isSidebarToggleButton(e.target);
+    if (toggleBtn) {
+      if (toggleBtn.hasAttribute('onclick')) toggleBtn.removeAttribute('onclick');
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -2001,4 +1924,950 @@
 
   window.addEventListener('DOMContentLoaded', initSidebarCollapseToggle);
   window.addEventListener('tenant-branding-ready', initSidebarCollapseToggle);
+
+  // ==========================================================================
+  // 9. PENGATURAN REKENING & QRIS (ADMIN FULL AKSES -> TAMPIL DI AKUN PELANGGAN)
+  // ==========================================================================
+  let cachedPaymentMap = {};
+  let pendingQrisFile = null;
+  let pendingQrisDataUrl = null;
+  let removeQrisFlag = false;
+
+  function escapePayHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getLoggedUserContext() {
+    const keys = ['bumdes_user', 'currentUser', 'user_session', 'loggedInUser', 'pdam_user'];
+    for (const k of keys) {
+      try {
+        const raw = localStorage.getItem(k) || sessionStorage.getItem(k);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') return parsed;
+        }
+      } catch (_) {}
+    }
+
+    const activePanel = document.querySelector('.panel-view.panel-active');
+    const role = activePanel && activePanel.id === 'panel-pelanggan'
+      ? 'pelanggan'
+      : activePanel && activePanel.id === 'panel-petugas'
+        ? 'petugas'
+        : 'admin';
+
+    const topbarText = (document.querySelector('#panel-admin .spark-topbar')?.textContent || '').toLowerCase();
+    return {
+      role,
+      hak_akses: topbarText.includes('full akses') ? 'Full Akses' : 'Full Akses',
+      nama_lengkap: document.querySelector('#panel-admin .spark-topbar strong')?.textContent?.trim() || 'Admin Desa'
+    };
+  }
+
+  function resolveCurrentDesaId() {
+    const u = getLoggedUserContext();
+    if (u && u.id_desa && String(u.id_desa).trim()) {
+      return String(u.id_desa).trim();
+    }
+    if (typeof getActiveIdDesa === 'function') {
+      const active = getActiveIdDesa();
+      if (active && String(active).trim()) return String(active).trim();
+    }
+    return 'DESA-001';
+  }
+
+  function isAdminFullAccess() {
+    const u = getLoggedUserContext();
+    const role = String(u.role || '').toLowerCase();
+    if (role && role !== 'admin') return false;
+
+    const aksesRaw = String(u.hak_akses || u.akses || u.level || '').toLowerCase().trim();
+    if (!aksesRaw) return true;
+    return /(full|utama|semua|all)/.test(aksesRaw);
+  }
+
+  // Kompresi gambar QRIS via HTML5 Canvas dengan ketajaman tinggi agar kode QR mudah di-scan
+  function compressQrisImageToBlob(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 900;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) resolve(blob);
+              else reject(new Error('Gagal memproses gambar QRIS.'));
+            },
+            'image/png',
+            0.95
+          );
+        };
+        img.onerror = () => reject(new Error('File gambar QRIS tidak valid.'));
+        img.src = ev.target.result;
+      };
+      reader.onerror = () => reject(new Error('Gagal membaca file gambar.'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function fetchDesaPaymentInfo(force = false) {
+    const idDesa = resolveCurrentDesaId();
+    const cacheKey = idDesa.toLowerCase();
+    if (cachedPaymentMap[cacheKey] && !force) return cachedPaymentMap[cacheKey];
+
+    try {
+      const { data, error } = await sb.rpc('getInfoPembayaranDesa', { p_id_desa: idDesa });
+      if (error) throw new Error(error.message);
+      if (data && data.status === 'success' && data.data) {
+        cachedPaymentMap[cacheKey] = data.data;
+        return data.data;
+      }
+    } catch (err) {
+      console.warn('[Info Pembayaran] Gagal memuat:', err.message);
+    }
+    return null;
+  }
+
+  // A. KARTU PENGATURAN REKENING & QRIS DI HALAMAN MANAJEMEN USER (ADMIN FULL AKSES)
+  function findUserManagementSection() {
+    const adminSections = Array.from(document.querySelectorAll('#panel-admin .admin-section'));
+    return adminSections.find((sec) => {
+      const hay = ((sec.id || '') + ' ' + (sec.querySelector('h1,h2,h3,h4,h5,.spark-section-title')?.textContent || '')).toLowerCase();
+      return hay.includes('user') || hay.includes('pengguna') || hay.includes('akun');
+    });
+  }
+
+  async function renderAdminPaymentConfigCard() {
+    const userSec = findUserManagementSection();
+    if (!userSec) return;
+
+    const fullAccess = isAdminFullAccess();
+    let card = document.getElementById('bumdesAdminPaymentConfigCard');
+
+    if (!card) {
+      card = document.createElement('div');
+      card.id = 'bumdesAdminPaymentConfigCard';
+      card.className = 'spark-card mt-4';
+      card.style.marginTop = '18px';
+      userSec.appendChild(card);
+    }
+
+    if (!fullAccess) {
+      card.innerHTML = `
+        <div class="spark-card-header">
+          <span><i class="fas fa-university" style="color:#0284c7;margin-right:7px;"></i>Rekening & QRIS Pembayaran Pelanggan</span>
+          <span style="font-size:0.7rem;padding:2px 8px;border-radius:999px;background:#fef3c7;color:#92400e;">Khusus Admin Full Akses</span>
+        </div>
+        <div class="spark-card-body" style="color:#64748b;font-size:0.84rem;">
+          Pengaturan nomor rekening bank dan unggah foto QRIS hanya dapat dikelola oleh akun utama (<strong>Admin Full Akses</strong>).
+        </div>
+      `;
+      return;
+    }
+
+    const info = (await fetchDesaPaymentInfo(false)) || {};
+    const qrisSrc = removeQrisFlag ? '' : (pendingQrisDataUrl || info.qris_url || '');
+
+    // Pertahankan nilai ketikan yang sedang diisi admin jika sudah ada di form
+    const draftBank = document.getElementById('payCfgBankNama')?.value ?? (info.bank_nama || '');
+    const draftRek = document.getElementById('payCfgNoRek')?.value ?? (info.bank_no_rekening || '');
+    const draftAtasNama = document.getElementById('payCfgAtasNama')?.value ?? (info.bank_atas_nama || '');
+    const draftCatatan = document.getElementById('payCfgCatatan')?.value ?? (info.catatan_pembayaran || '');
+
+    card.innerHTML = `
+      <div class="spark-card-header">
+        <span><i class="fas fa-qrcode" style="color:#0284c7;margin-right:7px;"></i>Pengaturan Rekening & QRIS Pembayaran (Tampil di Akun Pelanggan)</span>
+        <span style="font-size:0.7rem;padding:2px 9px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">Admin Full Akses</span>
+      </div>
+      <div class="spark-card-body">
+        <div class="row g-3 align-items-start">
+          <div class="col-md-7">
+            <div class="row g-2">
+              <div class="col-sm-5">
+                <label class="form-label" style="font-size:0.78rem;font-weight:600;color:#334155;">Nama Bank / E-Wallet</label>
+                <input type="text" id="payCfgBankNama" class="form-control form-control-sm"
+                  placeholder="Contoh: Bank Jatim / BRI / BCA" value="${escapePayHtml(draftBank)}" />
+              </div>
+              <div class="col-sm-7">
+                <label class="form-label" style="font-size:0.78rem;font-weight:600;color:#334155;">Nomor Rekening</label>
+                <input type="text" id="payCfgNoRek" class="form-control form-control-sm"
+                  placeholder="Contoh: 0123456789" value="${escapePayHtml(draftRek)}" />
+              </div>
+              <div class="col-12">
+                <label class="form-label" style="font-size:0.78rem;font-weight:600;color:#334155;">Atas Nama Rekening</label>
+                <input type="text" id="payCfgAtasNama" class="form-control form-control-sm"
+                  placeholder="Contoh: BUMDes Tirta Cempaka" value="${escapePayHtml(draftAtasNama)}" />
+              </div>
+              <div class="col-12">
+                <label class="form-label" style="font-size:0.78rem;font-weight:600;color:#334155;">Catatan / Petunjuk Pembayaran untuk Pelanggan</label>
+                <textarea id="payCfgCatatan" class="form-control form-control-sm" rows="2"
+                  placeholder="Contoh: Cantumkan ID Pelanggan pada keterangan transfer dan kirim bukti bayar ke admin.">${escapePayHtml(draftCatatan)}</textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-5">
+            <label class="form-label" style="font-size:0.78rem;font-weight:600;color:#334155;">Upload Foto QRIS</label>
+            <div style="border:1.5px dashed #cbd5e1;border-radius:10px;padding:12px;background:#f8fafc;text-align:center;">
+              <div id="payCfgQrisPreviewBox" style="margin-bottom:10px;">
+                ${
+                  qrisSrc
+                    ? `<img id="payCfgQrisImg" src="${escapePayHtml(qrisSrc)}" alt="Preview QRIS"
+                        style="max-height:165px;max-width:100%;border-radius:8px;border:1px solid #cbd5e1;background:#fff;padding:4px;" />
+                       ${
+                         pendingQrisFile
+                           ? `<div style="margin-top:5px;"><span style="font-size:0.68rem;padding:2px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-weight:700;">File siap diunggah (${escapePayHtml(pendingQrisFile.name)})</span></div>`
+                           : ''
+                       }`
+                    : `<div style="padding:24px 10px;color:#94a3b8;font-size:0.78rem;">
+                        <i class="fas fa-qrcode" style="font-size:2rem;display:block;margin-bottom:6px;color:#cbd5e1;"></i>
+                        Belum ada foto QRIS diunggah
+                      </div>`
+                }
+              </div>
+              <input type="file" id="payCfgQrisFile" accept="image/*" style="display:none;" />
+              <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                <button type="button" id="btnPickQrisFile" class="btn btn-sm btn-outline-primary" style="font-size:0.76rem;">
+                  <i class="fas fa-upload me-1"></i> Pilih Foto QRIS
+                </button>
+                ${
+                  qrisSrc
+                    ? `<button type="button" id="btnRemoveQrisFile" class="btn btn-sm btn-outline-danger" style="font-size:0.76rem;">
+                        <i class="fas fa-trash-alt me-1"></i> Hapus QRIS
+                      </button>`
+                    : ''
+                }
+              </div>
+              <div style="font-size:0.69rem;color:#64748b;margin-top:6px;">Klik <strong>Simpan Rekening & QRIS</strong> setelah memilih foto.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <span style="font-size:0.75rem;color:#64748b;">
+            <i class="fas fa-info-circle" style="color:#0284c7;margin-right:4px;"></i>
+            Perubahan langsung tampil di halaman akun seluruh pelanggan desa ini.
+          </span>
+          <button type="button" id="btnSaveDesaPaymentInfo" class="btn btn-sm btn-spark-primary" style="font-weight:600;padding:6px 16px;">
+            <i class="fas fa-save me-1"></i> Simpan Rekening & QRIS
+          </button>
+        </div>
+      </div>
+    `;
+
+    const fileInput = document.getElementById('payCfgQrisFile');
+    document.getElementById('btnPickQrisFile').addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      pendingQrisFile = file;
+      removeQrisFlag = false;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        pendingQrisDataUrl = ev.target.result;
+        renderAdminPaymentConfigCard();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    const removeBtn = document.getElementById('btnRemoveQrisFile');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', () => {
+        pendingQrisFile = null;
+        pendingQrisDataUrl = null;
+        removeQrisFlag = true;
+        renderAdminPaymentConfigCard();
+      });
+    }
+
+    document.getElementById('btnSaveDesaPaymentInfo').addEventListener('click', async () => {
+      const saveBtn = document.getElementById('btnSaveDesaPaymentInfo');
+      const bankNama = document.getElementById('payCfgBankNama').value.trim();
+      const noRek = document.getElementById('payCfgNoRek').value.trim();
+      const atasNama = document.getElementById('payCfgAtasNama').value.trim();
+      const catatan = document.getElementById('payCfgCatatan').value.trim();
+      const idDesa = resolveCurrentDesaId();
+
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
+
+      try {
+        let finalQrisUrl = removeQrisFlag ? '' : (info.qris_url || '');
+
+        if (pendingQrisFile) {
+          const blob = await compressQrisImageToBlob(pendingQrisFile);
+          const filePath = `qris/${idDesa.toLowerCase()}_qris_${Date.now()}.png`;
+          const { error: upErr } = await sb.storage
+            .from('pdam-files')
+            .upload(filePath, blob, { contentType: 'image/png', upsert: true });
+
+          if (upErr) throw new Error('Gagal mengunggah foto QRIS: ' + upErr.message);
+
+          const { data: pubData } = sb.storage.from('pdam-files').getPublicUrl(filePath);
+          finalQrisUrl = pubData?.publicUrl || '';
+          if (!finalQrisUrl) {
+            throw new Error('URL publik gambar QRIS gagal dibuat.');
+          }
+        }
+
+        const actor = getLoggedUserContext();
+        const { data, error } = await sb.rpc('saveInfoPembayaranDesa', {
+          p_id_desa: idDesa,
+          p_bank_nama: bankNama,
+          p_bank_no_rekening: noRek,
+          p_bank_atas_nama: atasNama,
+          p_qris_url: finalQrisUrl,
+          p_catatan_pembayaran: catatan,
+          p_actor: actor
+        });
+
+        if (error) throw new Error(error.message);
+        if (!data || data.status !== 'success') {
+          throw new Error(data?.message || 'Gagal menyimpan pengaturan pembayaran.');
+        }
+
+        pendingQrisFile = null;
+        pendingQrisDataUrl = null;
+        removeQrisFlag = false;
+        cachedPaymentMap = {};
+        await fetchDesaPaymentInfo(true);
+        await renderAdminPaymentConfigCard();
+
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({ icon: 'success', title: 'Tersimpan!', text: 'Nomor Rekening & QRIS berhasil disimpan untuk pelanggan.', timer: 2000, showConfirmButton: false });
+        } else {
+          alert('Nomor Rekening & QRIS berhasil disimpan!');
+        }
+      } catch (err) {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: err.message });
+        } else {
+          alert('Gagal: ' + err.message);
+        }
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save me-1"></i> Simpan Rekening & QRIS';
+      }
+    });
+  }
+
+  // B. PILIHAN METODE PEMBAYARAN (TRANSFER BANK / SCAN QRIS) DI PORTAL PELANGGAN
+  let plgPaymentObserver = null;
+  let selectedPelangganPayMethod = 'bank';
+
+  function buildPaymentMethodContentHtml(info, method, prefixId) {
+    const hasBank = Boolean(info && (info.bank_nama || info.bank_no_rekening));
+    const hasQris = Boolean(info && info.qris_url);
+
+    if (method === 'qris') {
+      if (!hasQris) {
+        return `
+          <div style="padding:16px 12px;border:1.5px dashed #cbd5e1;border-radius:10px;background:#f8fafc;text-align:center;color:#475569;font-size:0.79rem;line-height:1.5;">
+            <i class="fas fa-qrcode" style="font-size:1.7rem;color:#94a3b8;display:block;margin-bottom:6px;"></i>
+            <strong>Kode QRIS belum tersedia.</strong><br/>
+            Admin BUMDes belum mengunggah foto QRIS. Silakan gunakan metode <strong>Transfer Bank</strong> di samping.
+          </div>
+        `;
+      }
+      return `
+        <div style="border:1px solid #bae6fd;border-radius:10px;padding:12px;background:#f0f9ff;text-align:center;">
+          <div style="font-size:0.71rem;font-weight:700;color:#0369a1;margin-bottom:7px;letter-spacing:0.04em;">
+            SCAN QRIS PEMBAYARAN RESMI
+          </div>
+          <div style="background:#ffffff;display:inline-block;padding:8px;border-radius:8px;border:1px solid #cbd5e1;">
+            <img id="${prefixId}QrisImg" src="${escapePayHtml(info.qris_url)}" alt="QRIS Pembayaran"
+              style="max-height:210px;max-width:100%;border-radius:4px;cursor:zoom-in;display:block;" />
+          </div>
+          <div style="margin-top:9px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+            <button type="button" id="${prefixId}ZoomQris" class="btn btn-sm btn-spark-primary" style="font-size:0.73rem;padding:4px 11px;">
+              <i class="fas fa-search-plus me-1"></i> Perbesar QRIS
+            </button>
+            <a href="${escapePayHtml(info.qris_url)}" download="QRIS_${escapePayHtml(info.nama_bumdes || 'BUMDes')}.png" target="_blank" rel="noopener"
+              class="btn btn-sm btn-outline-secondary" style="font-size:0.73rem;padding:4px 11px;background:#fff;">
+              <i class="fas fa-download me-1"></i> Unduh QRIS
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    if (!hasBank) {
+      return `
+        <div style="padding:16px 12px;border:1.5px dashed #cbd5e1;border-radius:10px;background:#f8fafc;text-align:center;color:#475569;font-size:0.79rem;line-height:1.5;">
+          <i class="fas fa-university" style="font-size:1.7rem;color:#94a3b8;display:block;margin-bottom:6px;"></i>
+          <strong>Nomor rekening bank belum tersedia.</strong><br/>
+          Silakan pilih metode <strong>Scan QRIS</strong> atau hubungi admin BUMDes.
+        </div>
+      `;
+    }
+
+    return `
+      <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px;">
+        <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#0369a1;letter-spacing:0.04em;">
+          Transfer Rekening Bank
+        </div>
+        <div style="font-size:0.92rem;font-weight:700;color:#0f172a;margin-top:3px;">
+          ${escapePayHtml(info.bank_nama || 'Bank')}
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:6px 0;">
+          <span style="font-size:1.22rem;font-weight:800;letter-spacing:0.6px;color:#0284c7;font-family:monospace;">
+            ${escapePayHtml(info.bank_no_rekening || '-')}
+          </span>
+          <button type="button" id="${prefixId}CopyRek" class="btn btn-sm btn-spark-primary" style="font-size:0.73rem;padding:4px 10px;">
+            <i class="fas fa-copy me-1"></i> Salin No. Rek
+          </button>
+        </div>
+        <div style="font-size:0.79rem;color:#334155;">
+          Atas Nama: <strong>${escapePayHtml(info.bank_atas_nama || '-')}</strong>
+        </div>
+      </div>
+    `;
+  }
+
+  function copyTextSafe(text) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+      return;
+    }
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (_) {}
+    ta.remove();
+  }
+
+  function bindPaymentMethodActions(container, info, prefixId) {
+    const copyBtn = container.querySelector(`#${prefixId}CopyRek`);
+    if (copyBtn) {
+      copyBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const rek = info.bank_no_rekening || '';
+        copyTextSafe(rek);
+        copyBtn.innerHTML = '<i class="fas fa-check me-1"></i> Tersalin';
+        setTimeout(() => {
+          copyBtn.innerHTML = '<i class="fas fa-copy me-1"></i> Salin No. Rek';
+        }, 1800);
+      });
+    }
+
+    const zoomBtn = container.querySelector(`#${prefixId}ZoomQris`);
+    const qrisImg = container.querySelector(`#${prefixId}QrisImg`);
+    const openQrisZoom = (ev) => {
+      if (ev) ev.stopPropagation();
+      if (!info || !info.qris_url) return;
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          title: 'Scan QRIS ' + (info.nama_bumdes || ''),
+          imageUrl: info.qris_url,
+          imageAlt: 'QRIS Pembayaran',
+          confirmButtonText: 'Tutup',
+          confirmButtonColor: '#0284c7'
+        });
+      } else {
+        window.open(info.qris_url, '_blank');
+      }
+    };
+    if (zoomBtn) zoomBtn.addEventListener('click', openQrisZoom);
+    if (qrisImg) qrisImg.addEventListener('click', openQrisZoom);
+  }
+
+  async function renderPelangganPaymentCard(forceFetch = false) {
+    const panelPlg = document.getElementById('panel-pelanggan');
+    if (!panelPlg) return;
+
+    const oldBottomCard = document.getElementById('bumdesPelangganPaymentCard');
+    if (oldBottomCard) oldBottomCard.remove();
+
+    const info = await fetchDesaPaymentInfo(forceFetch);
+    const hasBank = Boolean(info && (info.bank_nama || info.bank_no_rekening));
+    const hasQris = Boolean(info && info.qris_url);
+
+    const cards = Array.from(panelPlg.querySelectorAll('.card, .spark-card'));
+    const existingCard = cards.find((c) => {
+      const txt = (c.textContent || '').toLowerCase();
+      return txt.includes('rekening resmi') || txt.includes('informasi rekening belum tersedia');
+    });
+
+    if (!existingCard) return;
+
+    const titleEl = Array.from(
+      existingCard.querySelectorAll('h1, h2, h3, h4, h5, h6, .spark-section-title, .card-title, .spark-card-header')
+    ).find((el) => (el.textContent || '').toLowerCase().includes('rekening resmi'));
+
+    const cardBody = existingCard.querySelector('.card-body, .spark-card-body') || existingCard;
+
+    if (!hasBank && !hasQris) {
+      const customBody = existingCard.querySelector('#bumdesPlgRekeningBody');
+      if (customBody) customBody.remove();
+      Array.from(cardBody.children).forEach((child) => {
+        if (child !== titleEl) child.style.display = '';
+      });
+      return;
+    }
+
+    Array.from(cardBody.children).forEach((child) => {
+      if (child !== titleEl && child.id !== 'bumdesPlgRekeningBody') {
+        child.style.display = 'none';
+      }
+    });
+
+    let targetBox = existingCard.querySelector('#bumdesPlgRekeningBody');
+    if (!targetBox) {
+      targetBox = document.createElement('div');
+      targetBox.id = 'bumdesPlgRekeningBody';
+      targetBox.style.marginTop = '10px';
+      if (titleEl && titleEl.parentElement === cardBody) {
+        titleEl.insertAdjacentElement('afterend', targetBox);
+      } else {
+        cardBody.appendChild(targetBox);
+      }
+    }
+
+    const u = getLoggedUserContext();
+    const namaPlg = u.nama_pelanggan || u.nama_lengkap || '';
+    const idPlg = u.id_pelanggan || u.username || '';
+    const waAdmin = String(info.no_wa_admin || '').replace(/[^0-9]/g, '');
+    const waFormatted = waAdmin.startsWith('0') ? '62' + waAdmin.slice(1) : waAdmin;
+    const waText = encodeURIComponent(
+      `Halo Admin ${info.nama_bumdes || 'BUMDes'}, saya ${namaPlg} (ID: ${idPlg}) ingin mengirimkan bukti pembayaran tagihan air.`
+    );
+
+    const isBankActive = selectedPelangganPayMethod === 'bank';
+
+    targetBox.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f1f5f9;padding:4px;border-radius:9px;margin-bottom:10px;border:1px solid #e2e8f0;">
+        <button type="button" data-plg-pay-tab="bank"
+          style="border:none;border-radius:7px;padding:7px 8px;font-size:0.76rem;font-weight:700;cursor:pointer;transition:all 0.15s;
+          background:${isBankActive ? '#0284c7' : 'transparent'};color:${isBankActive ? '#ffffff' : '#475569'};">
+          <i class="fas fa-university me-1"></i> Transfer Bank
+        </button>
+        <button type="button" data-plg-pay-tab="qris"
+          style="border:none;border-radius:7px;padding:7px 8px;font-size:0.76rem;font-weight:700;cursor:pointer;transition:all 0.15s;
+          background:${!isBankActive ? '#0284c7' : 'transparent'};color:${!isBankActive ? '#ffffff' : '#475569'};">
+          <i class="fas fa-qrcode me-1"></i> Scan QRIS
+        </button>
+      </div>
+
+      ${buildPaymentMethodContentHtml(info, selectedPelangganPayMethod, 'plgCard')}
+
+      ${
+        info.catatan_pembayaran
+          ? `<div style="margin-top:9px;padding:8px 10px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:0.75rem;line-height:1.4;">
+              <i class="fas fa-info-circle me-1"></i> ${escapePayHtml(info.catatan_pembayaran)}
+            </div>`
+          : ''
+      }
+
+      ${
+        waFormatted
+          ? `<div style="margin-top:9px;">
+              <a href="https://wa.me/${waFormatted}?text=${waText}" target="_blank" rel="noopener"
+                class="btn btn-sm btn-success w-100" style="font-size:0.75rem;font-weight:600;">
+                <i class="fab fa-whatsapp me-1"></i> Konfirmasi Bukti Bayar via WhatsApp
+              </a>
+            </div>`
+          : ''
+      }
+    `;
+
+    bindPaymentMethodActions(targetBox, info, 'plgCard');
+  }
+
+  // C. POPUP PEMBAYARAN SAAT PELANGGAN KLIK TOMBOL "BAYAR" PADA TAGIHAN
+  let lastQuickPayBillSummary = {};
+
+  async function openPelangganQuickPayModal(billSummary = null, forceFetch = false) {
+    if (billSummary) lastQuickPayBillSummary = billSummary;
+    const info = await fetchDesaPaymentInfo(forceFetch);
+    if (!info) return;
+
+    const hasBank = Boolean(info.bank_nama || info.bank_no_rekening);
+    const hasQris = Boolean(info.qris_url);
+    if (!hasBank && !hasQris) return;
+
+    let modal = document.getElementById('bumdesPlgQuickPayModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'bumdesPlgQuickPayModal';
+      modal.style.cssText =
+        'position:fixed;inset:0;z-index:10050;background:rgba(15,23,42,0.55);' +
+        'display:flex;align-items:center;justify-content:center;padding:16px;';
+      document.body.appendChild(modal);
+    }
+
+    const isBank = selectedPelangganPayMethod === 'bank';
+    modal.innerHTML = `
+      <div style="background:#ffffff;width:100%;max-width:430px;border-radius:14px;border:1px solid #cbd5e1;box-shadow:0 20px 45px rgba(15,23,42,0.25);overflow:hidden;">
+        <div style="padding:13px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+          <strong style="font-size:0.92rem;color:#0f172a;">
+            <i class="fas fa-wallet" style="color:#0284c7;margin-right:6px;"></i>Pilih Metode Pembayaran
+          </strong>
+          <button type="button" id="btnCloseQuickPayModal"
+            style="border:none;background:transparent;font-size:1.25rem;line-height:1;color:#64748b;cursor:pointer;">&times;</button>
+        </div>
+
+        <div style="padding:15px 16px;max-height:80vh;overflow-y:auto;">
+          ${
+            lastQuickPayBillSummary.nominal || lastQuickPayBillSummary.periode
+              ? `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:10px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                  <div>
+                    <div style="font-size:0.7rem;color:#64748b;font-weight:600;">TAGIHAN AIR</div>
+                    <div style="font-size:0.84rem;font-weight:700;color:#1e293b;">${escapePayHtml(lastQuickPayBillSummary.periode || 'Periode Aktif')}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:0.7rem;color:#64748b;font-weight:600;">TOTAL BAYAR</div>
+                    <div style="font-size:1.05rem;font-weight:800;color:#0284c7;">${escapePayHtml(lastQuickPayBillSummary.nominal || '-')}</div>
+                  </div>
+                </div>`
+              : ''
+          }
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f1f5f9;padding:4px;border-radius:9px;margin-bottom:12px;border:1px solid #e2e8f0;">
+            <button type="button" data-modal-pay-tab="bank"
+              style="border:none;border-radius:7px;padding:7px 10px;font-size:0.78rem;font-weight:700;cursor:pointer;
+              background:${isBank ? '#0284c7' : 'transparent'};color:${isBank ? '#ffffff' : '#475569'};">
+              <i class="fas fa-university me-1"></i> Transfer Bank
+            </button>
+            <button type="button" data-modal-pay-tab="qris"
+              style="border:none;border-radius:7px;padding:7px 10px;font-size:0.78rem;font-weight:700;cursor:pointer;
+              background:${!isBank ? '#0284c7' : 'transparent'};color:${!isBank ? '#ffffff' : '#475569'};">
+              <i class="fas fa-qrcode me-1"></i> Scan QRIS
+            </button>
+          </div>
+
+          ${buildPaymentMethodContentHtml(info, selectedPelangganPayMethod, 'plgModal')}
+
+          ${
+            info.catatan_pembayaran
+              ? `<div style="margin-top:10px;padding:8px 10px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:0.75rem;line-height:1.4;">
+                  <i class="fas fa-info-circle me-1"></i> ${escapePayHtml(info.catatan_pembayaran)}
+                </div>`
+              : ''
+          }
+        </div>
+
+        <div style="padding:11px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" id="btnQuickPayToUpload" class="btn btn-sm btn-spark-primary" style="font-size:0.78rem;font-weight:600;padding:6px 14px;">
+            <i class="fas fa-upload me-1"></i> Lanjut Upload Bukti Bayar
+          </button>
+        </div>
+      </div>
+    `;
+
+    modal.style.display = 'flex';
+
+    modal.querySelector('#btnCloseQuickPayModal').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    modal.querySelector('#btnQuickPayToUpload').addEventListener('click', () => {
+      modal.style.display = 'none';
+      const uploadCard = Array.from(document.querySelectorAll('#panel-pelanggan .card, #panel-pelanggan .spark-card')).find(
+        (c) => (c.textContent || '').toLowerCase().includes('upload bukti transfer')
+      );
+      if (uploadCard) {
+        uploadCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+
+    modal.onclick = (ev) => {
+      if (ev.target === modal) modal.style.display = 'none';
+    };
+
+    bindPaymentMethodActions(modal, info, 'plgModal');
+  }
+
+  function watchPelangganPaymentCard() {
+    const panelPlg = document.getElementById('panel-pelanggan');
+    if (!panelPlg || plgPaymentObserver) return;
+
+    let debounceTimer = null;
+    plgPaymentObserver = new MutationObserver((mutations) => {
+      if (!panelPlg.classList.contains('panel-active')) return;
+      const isInternalChange = mutations.every(
+        (m) => m.target && m.target.closest && m.target.closest('#bumdesPlgRekeningBody')
+      );
+      if (isInternalChange) return;
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        renderPelangganPaymentCard(false);
+      }, 150);
+    });
+
+    plgPaymentObserver.observe(panelPlg, { childList: true, subtree: true });
+  }
+
+  // Tangkap klik tab Transfer Bank / Scan QRIS di fase awal agar langsung merespons
+  document.addEventListener('click', (e) => {
+    const cardTab = e.target.closest('[data-plg-pay-tab]');
+    if (cardTab) {
+      e.preventDefault();
+      e.stopPropagation();
+      selectedPelangganPayMethod = cardTab.getAttribute('data-plg-pay-tab') || 'bank';
+      const idDesa = resolveCurrentDesaId().toLowerCase();
+      const cached = cachedPaymentMap[idDesa];
+      const needFresh = selectedPelangganPayMethod === 'qris' && (!cached || !cached.qris_url);
+      renderPelangganPaymentCard(needFresh);
+      return;
+    }
+
+    const modalTab = e.target.closest('[data-modal-pay-tab]');
+    if (modalTab) {
+      e.preventDefault();
+      e.stopPropagation();
+      selectedPelangganPayMethod = modalTab.getAttribute('data-modal-pay-tab') || 'bank';
+      const idDesa = resolveCurrentDesaId().toLowerCase();
+      const cached = cachedPaymentMap[idDesa];
+      const needFresh = selectedPelangganPayMethod === 'qris' && (!cached || !cached.qris_url);
+      openPelangganQuickPayModal(null, needFresh);
+      renderPelangganPaymentCard(false);
+      return;
+    }
+
+    const clickedBtn = e.target.closest('.menu-btn, button, a');
+    if (!clickedBtn) return;
+
+    const panelPlg = document.getElementById('panel-pelanggan');
+    if (panelPlg && panelPlg.classList.contains('panel-active') && panelPlg.contains(clickedBtn)) {
+      const btnText = (clickedBtn.textContent || '').trim().toLowerCase();
+      const inPaymentWidget = clickedBtn.closest('#bumdesPlgRekeningBody, #bumdesPlgQuickPayModal');
+      if (!inPaymentWidget && (btnText === 'bayar' || btnText === 'bayar sekarang' || btnText === 'bayar tagihan')) {
+        const rowOrCard = clickedBtn.closest('tr, .card, .spark-card');
+        const rowText = rowOrCard ? rowOrCard.textContent || '' : '';
+        const nominalMatch = rowText.match(/Rp\s?[0-9.,]+/i);
+        const periodeMatch = rowText.match(/(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)\s+\d{4}|\d{4}-\d{2}/i);
+
+        setTimeout(() => {
+          openPelangganQuickPayModal({
+            nominal: nominalMatch ? nominalMatch[0] : '',
+            periode: periodeMatch ? periodeMatch[0] : ''
+          }, false);
+        }, 120);
+      }
+    }
+
+    setTimeout(() => {
+      renderAdminPaymentConfigCard();
+      if (document.getElementById('panel-pelanggan')?.classList.contains('panel-active')) {
+        renderPelangganPaymentCard(false);
+      }
+    }, 160);
+  }, true);
+
+  window.addEventListener('DOMContentLoaded', () => {
+    watchPelangganPaymentCard();
+    setTimeout(() => {
+      renderAdminPaymentConfigCard();
+      renderPelangganPaymentCard(true);
+    }, 650);
+  });
+
+  window.addEventListener('tenant-branding-ready', () => {
+    cachedPaymentMap = {};
+    watchPelangganPaymentCard();
+    renderAdminPaymentConfigCard();
+    renderPelangganPaymentCard(true);
+  });
+
+  // ==========================================================================
+  // 10. ANIMASI PUTAR & NOTIFIKASI TOMBOL REFRESH AKUN PETUGAS
+  // ==========================================================================
+  function initPetugasRefreshEnhancement() {
+    if (!document.getElementById('bumdesPetugasRefreshStyle')) {
+      const style = document.createElement('style');
+      style.id = 'bumdesPetugasRefreshStyle';
+      style.textContent = `
+        @keyframes bumdesPetugasSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .bumdes-icon-spinning {
+          display: inline-block !important;
+          animation: bumdesPetugasSpin 0.75s linear infinite !important;
+        }
+
+        /* Mencegah tombol refresh petugas tertahan putih setelah diklik */
+        #panel-petugas [data-petugas-refresh-btn],
+        #panel-petugas [data-petugas-refresh-btn]:focus,
+        #panel-petugas [data-petugas-refresh-btn]:active {
+          background-color: #ffffff !important;
+          color: #0284c7 !important;
+          border-color: #cbd5e1 !important;
+          box-shadow: none !important;
+          outline: none !important;
+          transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease !important;
+        }
+
+        #panel-petugas [data-petugas-refresh-btn]:hover {
+          background-color: #f0f9ff !important;
+          color: #0369a1 !important;
+          border-color: #7dd3fc !important;
+        }
+
+        #panel-petugas [data-petugas-refresh-btn].is-refreshing {
+          background-color: #e0f2fe !important;
+          color: #0284c7 !important;
+          border-color: #7dd3fc !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    const panelPetugas = document.getElementById('panel-petugas');
+    if (!panelPetugas) return;
+
+    panelPetugas.querySelectorAll('button, a.btn').forEach((btn) => {
+      const icon = btn.querySelector('.fa-sync, .fa-sync-alt, .fa-redo, .fa-redo-alt, .fa-rotate, .fa-rotate-right, .bi-arrow-clockwise, .bi-arrow-repeat');
+      const onclickStr = btn.getAttribute('onclick') || '';
+      const titleStr = (btn.getAttribute('title') || btn.getAttribute('aria-label') || '').toLowerCase();
+      const textStr = (btn.textContent || '').trim().toLowerCase();
+
+      const isRefreshBtn =
+        Boolean(icon) ||
+        /refresh|reload|muat|sinkron/i.test(onclickStr) ||
+        /refresh|muat ulang|perbarui/i.test(titleStr) ||
+        textStr === 'refresh' ||
+        textStr === 'muat ulang';
+
+      if (isRefreshBtn) {
+        btn.setAttribute('data-petugas-refresh-btn', 'true');
+        if (!btn.getAttribute('title')) {
+          btn.setAttribute('title', 'Perbarui Data Dasbor');
+        }
+      }
+    });
+  }
+
+  function showPetugasRefreshToast(message = 'Data dasbor petugas berhasil diperbarui') {
+    if (typeof Swal !== 'undefined') {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2200,
+        timerProgressBar: true
+      });
+      Toast.fire({
+        icon: 'success',
+        title: message
+      });
+      return;
+    }
+
+    // Cadangan toast ringan jika SweetAlert2 belum dimuat
+    let toastEl = document.getElementById('bumdesFallbackToast');
+    if (!toastEl) {
+      toastEl = document.createElement('div');
+      toastEl.id = 'bumdesFallbackToast';
+      toastEl.style.cssText =
+        'position:fixed;top:16px;right:16px;z-index:10999;background:#0f172a;color:#ffffff;' +
+        'padding:10px 16px;border-radius:10px;font-size:0.82rem;font-weight:600;' +
+        'box-shadow:0 10px 25px rgba(15,23,42,0.22);display:flex;align-items:center;gap:8px;' +
+        'opacity:0;transform:translateY(-8px);transition:all 0.2s ease;';
+      document.body.appendChild(toastEl);
+    }
+
+    toastEl.innerHTML = `<i class="fas fa-check-circle" style="color:#38bdf8;"></i><span>${message}</span>`;
+    requestAnimationFrame(() => {
+      toastEl.style.opacity = '1';
+      toastEl.style.transform = 'translateY(0)';
+    });
+
+    clearTimeout(toastEl._hideTimer);
+    toastEl._hideTimer = setTimeout(() => {
+      toastEl.style.opacity = '0';
+      toastEl.style.transform = 'translateY(-8px)';
+    }, 2200);
+  }
+
+  document.addEventListener('click', (e) => {
+    const panelPetugas = document.getElementById('panel-petugas');
+    if (!panelPetugas || !panelPetugas.contains(e.target)) return;
+
+    const btn = e.target.closest('button, a.btn');
+    if (!btn) return;
+
+    const icon = btn.querySelector('.fa-sync, .fa-sync-alt, .fa-redo, .fa-redo-alt, .fa-rotate, .fa-rotate-right, .bi-arrow-clockwise, .bi-arrow-repeat, i');
+    const isRefreshBtn =
+      btn.hasAttribute('data-petugas-refresh-btn') ||
+      Boolean(btn.querySelector('.fa-sync, .fa-sync-alt, .fa-redo, .fa-redo-alt, .fa-rotate, .fa-rotate-right, .bi-arrow-clockwise, .bi-arrow-repeat')) ||
+      /refresh|reload|muat|sinkron/i.test(btn.getAttribute('onclick') || '') ||
+      /refresh|muat ulang|perbarui/i.test((btn.getAttribute('title') || btn.textContent || '').toLowerCase());
+
+    if (!isRefreshBtn) return;
+
+    btn.setAttribute('data-petugas-refresh-btn', 'true');
+
+    // Lepaskan fokus agar warna tombol tidak tertahan putih
+    setTimeout(() => {
+      if (document.activeElement === btn) btn.blur();
+    }, 60);
+
+    // Hindari spam klik saat animasi putar sedang berjalan
+    if (btn.dataset.refreshing === '1') return;
+    btn.dataset.refreshing = '1';
+    btn.classList.add('is-refreshing');
+
+    if (icon) {
+      icon.classList.add('fa-spin', 'bumdes-icon-spinning');
+    }
+
+    // Jalankan pemuatan ulang data jika tombol belum memiliki handler bawaan
+    const hasInlineHandler = Boolean(btn.getAttribute('onclick'));
+    if (!hasInlineHandler) {
+      try {
+        if (typeof window.loadPetugasDashboard === 'function') window.loadPetugasDashboard();
+        else if (typeof window.refreshPetugasData === 'function') window.refreshPetugasData();
+        else if (typeof window.muatDataPetugas === 'function') window.muatDataPetugas();
+      } catch (_) {}
+    }
+
+    // Hentikan putaran setelah 850ms, kembalikan tampilan asal, lalu tampilkan notifikasi
+    setTimeout(() => {
+      if (icon) {
+        icon.classList.remove('fa-spin', 'bumdes-icon-spinning');
+      }
+      btn.classList.remove('is-refreshing');
+      btn.blur();
+      delete btn.dataset.refreshing;
+      showPetugasRefreshToast('Data dasbor petugas berhasil diperbarui');
+    }, 850);
+  }, false);
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initPetugasRefreshEnhancement, 400);
+  });
+  window.addEventListener('tenant-branding-ready', initPetugasRefreshEnhancement);
 })();
