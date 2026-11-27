@@ -2872,33 +2872,79 @@
   window.addEventListener('tenant-branding-ready', initPetugasRefreshEnhancement);
 
   // ==========================================================================
-  // 11. PINTASAN RAHASIA DEVELOPER UNTUK RESET CACHE TENANT (TANPA TOMBOL UI)
+  // 11. PINTASAN RAHASIA DEVELOPER UNTUK RESET PERANGKAT KE MODE NETRAL
+  //     (Ketuk/Klik Logo Login 5x Cepat atau Tekan F9 di Layar Login)
   // ==========================================================================
+  function executeDeveloperDeviceReset() {
+    const isDashboardActive = document.querySelector(
+      '#panel-admin.panel-active, #panel-petugas.panel-active, #panel-pelanggan.panel-active'
+    );
+    if (isDashboardActive) return;
+
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (_) {}
+
+    const reloadClean = () => {
+      window.location.href = window.location.origin + window.location.pathname;
+    };
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Memori desa direset. Memuat mode netral...',
+        showConfirmButton: false,
+        timer: 1100
+      }).then(reloadClean);
+    } else {
+      reloadClean();
+    }
+  }
+
+  // Pintasan keyboard F9 di layar login
   document.addEventListener('keydown', (e) => {
-    // Tekan Ctrl + Alt + Shift + R di layar login untuk mereset perangkat ke mode netral
-    if (e.ctrlKey && e.altKey && e.shiftKey && e.key.toLowerCase() === 'r') {
+    if (e.key === 'F9') {
       const isDashboardActive = document.querySelector(
         '#panel-admin.panel-active, #panel-petugas.panel-active, #panel-pelanggan.panel-active'
       );
       if (isDashboardActive) return;
-
       e.preventDefault();
-      const keysToClear = [
-        'active_id_desa',
-        'bumdes_id_desa',
-        'tenant_branding',
-        'bumdes_branding',
-        'bumdes_user',
-        'currentUser',
-        'user_session',
-        'loggedInUser',
-        'pdam_user'
-      ];
-      keysToClear.forEach((k) => {
-        localStorage.removeItem(k);
-        sessionStorage.removeItem(k);
-      });
-      window.location.href = window.location.origin + window.location.pathname;
+      executeDeveloperDeviceReset();
     }
   });
+
+  // Ketuk / klik 5x cepat pada logo atau judul atas di layar login
+  let loginLogoTapCount = 0;
+  let loginLogoTapTimer = null;
+
+  document.addEventListener('click', (e) => {
+    const isDashboardActive = document.querySelector(
+      '#panel-admin.panel-active, #panel-petugas.panel-active, #panel-pelanggan.panel-active'
+    );
+    if (isDashboardActive) return;
+
+    const loginContainer = e.target.closest('#login-screen, #loginScreen, #loginForm, .login-card, .login-box, .auth-card');
+    if (!loginContainer) return;
+
+    if (e.target.closest('input, button, a, select, textarea')) return;
+
+    const hitLogoOrHeader = e.target.closest('img, svg, .login-logo, .brand-logo, h1, h2, h3, h4');
+    if (!hitLogoOrHeader) return;
+
+    loginLogoTapCount += 1;
+    clearTimeout(loginLogoTapTimer);
+
+    if (loginLogoTapCount >= 5) {
+      loginLogoTapCount = 0;
+      executeDeveloperDeviceReset();
+      return;
+    }
+
+    loginLogoTapTimer = setTimeout(() => {
+      loginLogoTapCount = 0;
+    }, 1800);
+  }, true);
 })();
