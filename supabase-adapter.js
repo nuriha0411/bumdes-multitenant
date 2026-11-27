@@ -2947,4 +2947,186 @@
       loginLogoTapCount = 0;
     }, 1800);
   }, true);
+
+  // ==========================================================================
+  // 12. BROADCAST PENGUMUMAN GLOBAL DI DASBOR ADMIN DESA
+  // ==========================================================================
+  let cachedBroadcastData = null;
+  let broadcastDismissedInSession = false;
+  let isRenderingBroadcast = false;
+  let broadcastFetchPromise = null;
+
+  async function fetchGlobalBroadcastData() {
+    if (cachedBroadcastData) return cachedBroadcastData;
+    if (broadcastFetchPromise) return broadcastFetchPromise;
+
+    broadcastFetchPromise = (async () => {
+      try {
+        const { data, error } = await sb
+          .from('tbl_pengumuman_global')
+          .select('*')
+          .eq('id', 1)
+          .maybeSingle();
+
+        if (!error && data) {
+          cachedBroadcastData = data;
+          return data;
+        }
+      } catch (_) {}
+      return null;
+    })();
+
+    const result = await broadcastFetchPromise;
+    broadcastFetchPromise = null;
+    return result;
+  }
+
+  async function ensureBroadcastBannerRendered() {
+    if (broadcastDismissedInSession || isRenderingBroadcast) return;
+
+    const adminPanel = document.getElementById('panel-admin');
+    if (!adminPanel || !adminPanel.classList.contains('panel-active')) return;
+
+    const mainContainer = adminPanel.querySelector('.admin-main-content');
+    if (!mainContainer || document.getElementById('globalMasterBanner')) return;
+
+    isRenderingBroadcast = true;
+    try {
+      const info = await fetchGlobalBroadcastData();
+      if (!info || !info.aktif || !info.isi) return;
+
+      // Cek ulang setelah await agar banner tidak pernah dibuat ganda
+      if (broadcastDismissedInSession || document.getElementById('globalMasterBanner')) return;
+
+      const colors = {
+        info: 'background:#eff6ff;border-color:#93c5fd;color:#1e3a8a;',
+        warning: 'background:#fffbeb;border-color:#fcd34d;color:#92400e;',
+        success: 'background:#ecfdf5;border-color:#6ee7b7;color:#065f46;'
+      };
+
+      const banner = document.createElement('div');
+      banner.id = 'globalMasterBanner';
+      banner.style.cssText = `${colors[info.tipe] || colors.info}border:1px solid;border-radius:12px;padding:12px 16px;margin:0 0 16px 0;font-size:0.84rem;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 6px rgba(15,23,42,0.05);`;
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;line-height:1.45;">
+          <i class="fas fa-bullhorn" style="font-size:1rem;flex-shrink:0;"></i>
+          <div>
+            <strong>${escapeSearchHtml(info.judul || 'Informasi Sistem')}:</strong>
+            <span>${escapeSearchHtml(info.isi)}</span>
+          </div>
+        </div>
+        <button type="button" id="closeGlobalMasterBanner" title="Tutup sementara"
+          style="background:transparent;border:none;font-size:1rem;font-weight:bold;cursor:pointer;opacity:0.7;padding:2px 6px;color:inherit;">✕</button>
+      `;
+
+      mainContainer.prepend(banner);
+
+      document.getElementById('closeGlobalMasterBanner')?.addEventListener('click', () => {
+        broadcastDismissedInSession = true;
+        document.querySelectorAll('#globalMasterBanner').forEach((el) => el.remove());
+      });
+    } finally {
+      isRenderingBroadcast = false;
+    }
+  }
+
+  // ==========================================================================
+  // 13. PERBAIKAN IKON PENCARIAN GLOBAL & IKON (?) KONTAK MASTER DI TOPBAR
+  // ==========================================================================
+  function rebindTopRightHeaderIcons() {
+    document.querySelectorAll('.spark-topbar .topbar-icon-btn, .spark-topbar button').forEach((el) => {
+      // Abaikan tombol garis tiga menu kiri
+      if (el.querySelector('.fa-bars, .fa-outdent, .fa-indent, .bi-list')) return;
+      if (el.nextElementSibling && el.nextElementSibling.classList.contains('spark-breadcrumb')) return;
+
+      const hasSearchIcon = Boolean(el.querySelector('.fa-search, .fa-magnifying-glass'));
+      const hasQuestionIcon =
+        Boolean(el.querySelector('.fa-question, .fa-question-circle, .fa-circle-question')) ||
+        (el.textContent || '').trim() === '?';
+
+      if (!hasSearchIcon && !hasQuestionIcon) return;
+
+      // Pastikan atribut pemicu lipat sidebar dari Bagian 8 dihapus total
+      el.removeAttribute('data-sidebar-toggle-btn');
+      el.removeAttribute('onclick');
+
+      if (el.dataset.twHeaderFixed === '1') return;
+
+      const cleanEl = el.cloneNode(true);
+      cleanEl.removeAttribute('data-sidebar-toggle-btn');
+      cleanEl.removeAttribute('onclick');
+      cleanEl.dataset.twHeaderFixed = '1';
+
+      if (hasSearchIcon) {
+        cleanEl.title = 'Pencarian Global (Ctrl + K)';
+        cleanEl.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openGlobalSearch();
+        });
+      } else if (hasQuestionIcon) {
+        cleanEl.title = 'Informasi Kontak Master';
+        cleanEl.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openMasterContactPopup();
+        });
+      }
+
+      if (el.parentNode) {
+        el.parentNode.replaceChild(cleanEl, el);
+      }
+    });
+  }
+
+  async function openMasterContactPopup() {
+    const info = await fetchGlobalBroadcastData();
+    const activeDesa = getActiveIdDesa();
+    const rawWa = (info && info.no_wa_master) || '6285700000000';
+    const waDigits = String(rawWa).replace(/\D/g, '').replace(/^0/, '62');
+    const waText = encodeURIComponent(`Halo Admin TitiWeb Lab, saya pengurus dari kode desa *${activeDesa}* membutuhkan bantuan teknis sistem Smart Air Desa.`);
+    const waLink = `https://wa.me/${waDigits}?text=${waText}`;
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Informasi Kontak Master',
+        html: `
+          <div style="text-align:left;font-size:13px;line-height:1.6;color:#334155;">
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+              <div style="font-weight:800;color:#0f172a;font-size:14px;">TitiWeb Lab, <span style="font-weight:400;font-style:italic;">By Nuri Hartanto</span></div>
+              <div style="font-size:12px;color:#64748b;">Pengembang & Dukungan Teknis Sistem Smart Air Desa</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+              <div><strong>Kode Tenant Desa Anda:</strong> <span style="font-family:monospace;background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:6px;">${escapeSearchHtml(activeDesa)}</span></div>
+              <div><strong>WhatsApp Bantuan:</strong> +${waDigits}</div>
+              <div><strong>Jam Layanan Teknis:</strong> Senin – Sabtu (08.00 – 20.00 WIB)</div>
+            </div>
+            <a href="${waLink}" target="_blank" rel="noopener"
+              style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#16a34a;color:#fff;font-weight:700;padding:10px 14px;border-radius:10px;text-decoration:none;">
+              <i class="fab fa-whatsapp" style="font-size:16px;"></i> Hubungi Kami via WhatsApp
+            </a>
+          </div>
+        `,
+        showConfirmButton: true,
+        confirmButtonText: 'Tutup',
+        confirmButtonColor: '#0284c7'
+      });
+    } else {
+      alert(`Kontak Master: TitiWeb Lab, By Nuri Hartanto\nWhatsApp: +${waDigits}\nKode Desa: ${activeDesa}`);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    rebindTopRightHeaderIcons();
+    ensureBroadcastBannerRendered();
+    setInterval(() => {
+      rebindTopRightHeaderIcons();
+      ensureBroadcastBannerRendered();
+    }, 1000);
+  });
+
+  window.addEventListener('tenant-branding-ready', () => {
+    rebindTopRightHeaderIcons();
+    ensureBroadcastBannerRendered();
+  });
 })();

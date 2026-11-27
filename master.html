@@ -3,1149 +3,1253 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Master Control Panel — Manajemen Klien BUMDes Air</title>
+  <title>Master Command Center — TitiWeb Lab</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@1990;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    .drawer-backdrop {
+      transition: opacity 0.25s ease;
+    }
+    .drawer-panel {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen">
+<body class="min-h-screen flex flex-col">
 
-  <div id="toast" class="fixed top-5 right-5 z-50 hidden max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl transition-all"></div>
-
-  <!-- 1. LAYAR LOGIN MASTER ADMIN -->
-  <div id="loginView" class="min-h-screen flex items-center justify-center px-4">
-    <div class="w-full max-w-md bg-slate-1320 border border-slate-800 rounded-2xl p-8 shadow-2xl">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-11 h-11 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-1990">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
+  <!-- ===================================================================== -->
+  <!-- GERBANG KEAMANAN SUPER ADMIN (PIN LOCK SCREEN)                        -->
+  <!-- ===================================================================== -->
+  <div id="masterLockScreen" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-7 shadow-2xl text-white">
+      <div class="flex items-center gap-3.5 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center font-extrabold text-lg tracking-tight shadow-lg shadow-sky-500/20">
+          NH
         </div>
         <div>
-          <span class="text-xs font-semibold uppercase tracking-wider text-sky-1990">Super Admin SaaS</span>
-          <h1 class="text-xl font-bold text-white">Master Control Panel</h1>
+          <span class="text-[11px] font-bold uppercase tracking-widest text-sky-400">TitiWeb Lab Control</span>
+          <h1 class="text-lg font-bold text-white leading-tight">Master Command Center</h1>
         </div>
       </div>
 
-      <p class="text-sm text-slate-1990 mb-6">
-        Kelola pendaftaran klien desa baru, branding logo, subdomain, template surat, dan masa aktif langganan.
+      <p class="text-xs text-slate-400 leading-relaxed mb-5">
+        Area khusus pengembang untuk mengelola tenant BUMDes, masa aktif langganan, kuota pelanggan, dan akses bantuan teknis.
       </p>
 
-      <form id="loginForm" class="space-y-4">
+      <form id="pinUnlockForm" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1.5">Username Master</label>
-          <input id="loginUser" type="text" required autocomplete="username" placeholder="master"
-            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2.5 text-sm text-white focus:border-sky-500 focus:outline-none" />
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">PIN Super Admin</label>
+          <div class="relative">
+            <input type="password" id="inputMasterPin" inputmode="numeric" maxlength="12" required
+              placeholder="Masukkan PIN akses..."
+              class="w-full bg-slate-800/90 border border-slate-700 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 rounded-xl px-4 py-3 text-sm text-white tracking-widest outline-none transition" />
+            <i class="fas fa-shield-halved absolute right-4 top-3.5 text-slate-500"></i>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1.5">PIN bawaan awal: <code class="text-sky-400">202699</code> (dapat diubah setelah masuk)</p>
         </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1.5">Password Master</label>
-          <input id="loginPass" type="password" required autocomplete="current-password" placeholder="••••••••"
-            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2.5 text-sm text-white focus:border-sky-500 focus:outline-none" />
-        </div>
-        <button id="btnLogin" type="submit"
-          class="w-full rounded-xl bg-sky-600 hover:bg-sky-500 active:bg-sky-700 py-2.5 text-sm font-semibold text-white transition cursor-pointer">
-          Masuk ke Master Panel
+
+        <button type="submit"
+          class="w-full bg-sky-600 hover:bg-sky-500 active:scale-[0.99] text-white font-semibold text-sm py-3 rounded-xl shadow-lg shadow-sky-600/25 transition flex items-center justify-center gap-2">
+          <i class="fas fa-unlock-keyhole"></i> Buka Panel Master
         </button>
       </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-800/80 text-center text-[11px] text-slate-500">
+        Sistem ini dikembangkan oleh <span class="text-slate-300 font-semibold">TitiWeb Lab, By Nuri Hartanto</span>
+      </div>
     </div>
   </div>
 
-  <!-- 2. DASHBOARD MASTER CONTROL PANEL -->
-  <div id="dashboardView" class="hidden">
-    <header class="border-b border-slate-800 bg-slate-1320/80 backdrop-blur sticky top-0 z-30">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-1990 font-bold">M</div>
+  <!-- ===================================================================== -->
+  <!-- HEADER EKSEKUTIF GELAP                                                -->
+  <!-- ===================================================================== -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center font-extrabold text-sm tracking-tight shadow-md">
+          NH
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-sm sm:text-base tracking-tight text-white">Smart Air Desa</h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30">
+              MASTER SaaS
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400">TitiWeb Lab, By Nuri Hartanto</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Indikator Status Database -->
+        <div id="dbStatusBadge" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs text-slate-300">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span>Menghubungkan...</span>
+        </div>
+
+        <button type="button" onclick="loadAllMasterData(true)" title="Muat Ulang Data"
+          class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition">
+          <i id="headerRefreshIcon" class="fas fa-rotate text-xs"></i>
+        </button>
+
+        <button type="button" onclick="openMasterSettings()" title="Pengaturan Master & Koneksi"
+          class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition">
+          <i class="fas fa-gear text-xs"></i>
+        </button>
+
+        <button type="button" onclick="lockMasterPanel()" title="Kunci Layar"
+          class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-950 text-slate-300 hover:text-rose-300 border border-slate-700 transition">
+          <i class="fas fa-lock text-xs"></i>
+        </button>
+
+        <button type="button" onclick="openNewTenantModal()"
+          class="bg-sky-600 hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold px-3.5 sm:px-4 py-2.5 rounded-xl shadow-lg shadow-sky-600/20 transition flex items-center gap-2">
+          <i class="fas fa-plus"></i>
+          <span>Daftarkan Desa</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- KONTEN UTAMA COMMAND CENTER                                           -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- 4 KARTU KPI UTAMA -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-slate-500">Desa Klien Aktif</span>
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <i class="fas fa-building-circle-check"></i>
+          </div>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span id="kpiDesaAktif" class="text-2xl font-extrabold text-slate-900">0</span>
+          <span id="kpiDesaTotal" class="text-xs text-slate-400">dari 0 terdaftar</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-slate-500">Total Pelanggan Terkelola</span>
+          <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+            <i class="fas fa-users"></i>
+          </div>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span id="kpiTotalPelanggan" class="text-2xl font-extrabold text-slate-900">0</span>
+          <span id="kpiTotalPetugas" class="text-xs text-slate-400">• 0 petugas</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-slate-500">Jatuh Tempo ≤ 14 Hari</span>
+          <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <i class="fas fa-clock"></i>
+          </div>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span id="kpiAkanExpired" class="text-2xl font-extrabold text-amber-600">0</span>
+          <span class="text-xs text-slate-400">perlu pengingat WA</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-slate-500">Masa Tenggang / Nonaktif</span>
+          <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+            <i class="fas fa-ban"></i>
+          </div>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span id="kpiNonaktif" class="text-2xl font-extrabold text-rose-600">0</span>
+          <span class="text-xs text-slate-400">desa tertangguh</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAPAN PENGUMUMAN GLOBAL (BROADCAST KE SEMUA ADMIN DESA) -->
+    <section class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div class="px-5 py-4 bg-slate-50/80 border-b border-slate-200/70 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+            <i class="fas fa-bullhorn text-xs"></i>
+          </div>
           <div>
-            <h1 class="text-base font-bold text-white leading-tight">Master Control Panel</h1>
-            <p class="text-xs text-slate-1990" id="masterNameLabel">Owner / Super Admin</p>
+            <h2 class="text-sm font-bold text-slate-800">Broadcast Pengumuman Global</h2>
+            <p class="text-[11px] text-slate-500">Tayangkan informasi pemeliharaan atau rilis fitur ke dasbor seluruh Admin BUMDes</p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2.5">
-          <button onclick="openModal('modalPasswordMaster')"
-            class="rounded-xl border border-slate-700 bg-slate-800/70 hover:bg-slate-800 px-3.5 py-2 text-xs font-medium text-slate-200 transition cursor-pointer">
-            Ganti Password Master
-          </button>
-          <button onclick="logoutMaster()"
-            class="rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 px-3.5 py-2 text-xs font-medium text-rose-300 transition cursor-pointer">
-            Keluar
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="rounded-2xl border border-slate-800 bg-slate-1320 p-4">
-          <p class="text-xs text-slate-1990">Total Klien Desa</p>
-          <p id="kpiTotalDesa" class="text-2xl font-bold text-white mt-1">0</p>
-        </div>
-        <div class="rounded-2xl border border-slate-800 bg-slate-1320 p-4">
-          <p class="text-xs text-slate-1990">Layanan Aktif</p>
-          <p id="kpiAktifDesa" class="text-2xl font-bold text-emerald-1990 mt-1">0</p>
-        </div>
-        <div class="rounded-2xl border border-slate-800 bg-slate-1320 p-4">
-          <p class="text-xs text-slate-1990">Nonaktif / Expired</p>
-          <p id="kpiNonaktifDesa" class="text-2xl font-bold text-amber-1990 mt-1">0</p>
-        </div>
-        <div class="rounded-2xl border border-slate-800 bg-slate-1320 p-4">
-          <p class="text-xs text-slate-1990">Total Sambungan Pelanggan</p>
-          <p id="kpiTotalPelanggan" class="text-2xl font-bold text-sky-1990 mt-1">0</p>
-        </div>
+        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+          <input type="checkbox" id="broadcastAktif" class="sr-only peer" />
+          <div class="w-10 h-5 bg-slate-300 peer-checked:bg-indigo-600 rounded-full relative transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition peer-checked:after:translate-x-5"></div>
+          <span class="text-xs font-semibold text-slate-700">Tayangkan ke Klien</span>
+        </label>
       </div>
 
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-1320 border border-slate-800 rounded-2xl p-4">
-        <div class="flex flex-1 flex-wrap items-center gap-3">
-          <input id="searchDesaInput" type="text" oninput="renderDesaTable()"
-            placeholder="Cari nama BUMDes, nama desa, subdomain, kode..."
-            class="w-full sm:w-80 rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-          <select id="filterStatusSelect" onchange="renderDesaTable()"
-            class="rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-sm text-slate-200 focus:border-sky-500 focus:outline-none">
-            <option value="ALL">Semua Status</option>
-            <option value="AKTIF">Aktif Saja</option>
-            <option value="NONAKTIF">Nonaktif / Expired</option>
+      <div class="p-5 grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+        <div class="md:col-span-3">
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jenis Banner</label>
+          <select id="broadcastTipe" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-medium bg-white focus:border-indigo-500 outline-none">
+            <option value="info">Informasi / Fitur Baru (Biru)</option>
+            <option value="warning">Jadwal Pemeliharaan (Kuning)</option>
+            <option value="success">Pemberitahuan Penting (Hijau)</option>
           </select>
         </div>
-
-        <button onclick="openCreateDesaModal()"
-          class="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-600/20 transition cursor-pointer">
-          <span>+ Tambah Klien Desa Baru</span>
-        </button>
-      </div>
-
-      <div class="rounded-2xl border border-slate-800 bg-slate-1320 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="border-b border-slate-800 bg-slate-950/60 text-[11px] font-semibold uppercase tracking-wider text-slate-1990">
-                <th class="py-3.5 px-4">ID & Kode</th>
-                <th class="py-3.5 px-4">BUMDes, Desa & Logo</th>
-                <th class="py-3.5 px-4">Domain / Link Akses</th>
-                <th class="py-3.5 px-4 text-center">Pelanggan / User</th>
-                <th class="py-3.5 px-4">Masa Aktif & Status</th>
-                <th class="py-3.5 px-4 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="desaTableBody" class="divide-y divide-slate-800/80 text-sm">
-              <tr>
-                <td colspan="6" class="py-8 text-center text-slate-1990">Memuat data klien desa...</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="md:col-span-3">
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Judul Singkat</label>
+          <input type="text" id="broadcastJudul" placeholder="Contoh: Pembaruan Fitur QRIS"
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:border-indigo-500 outline-none" />
         </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- MODAL 1: TAMBAH KLIEN DESA BARU -->
-  <div id="modalCreateDesa" class="fixed inset-0 z-199 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-1320 p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-        <h2 class="text-base font-bold text-white">Tambah Klien Desa Baru</h2>
-        <button onclick="closeModal('modalCreateDesa')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
-      </div>
-
-      <form id="createDesaForm" class="space-y-3.5">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">ID Desa *</label>
-            <input id="newIdDesa" type="text" required placeholder="DESA-003"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white uppercase focus:border-sky-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Kode Prefix Login *</label>
-            <input id="newKodePrefix" type="text" required placeholder="DS3"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white uppercase focus:border-sky-500 focus:outline-none" />
-          </div>
+        <div class="md:col-span-4">
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Isi Pesan Pengumuman</label>
+          <input type="text" id="broadcastIsi" placeholder="Tulis pesan singkat yang tampil di dasbor admin desa..."
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:border-indigo-500 outline-none" />
         </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Nama BUMDes *</label>
-            <input id="newNamaBumdes" type="text" required placeholder="Contoh: BUMDes Tirta Cempaka"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Nama Desa *</label>
-            <input id="newNamaDesa" type="text" required placeholder="Contoh: Desa Cepokorejo"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Nama Unit</label>
-            <input id="newNamaUnit" type="text" value="Unit Air Bersih"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">No. WA Admin Desa</label>
-            <input id="newNoWa" type="text" placeholder="0812xxxxxxxx"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Alamat Kop Struk / Laporan</label>
-          <input id="newAlamatKop" type="text" placeholder="Contoh: Jl. Raya Desa Cepokorejo, Kec. Palang, Kab. Tuban"
-            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Subdomain / Custom Domain (Opsional)</label>
-          <input id="newSubdomain" type="text" placeholder="Contoh: air.desacepokorejo.desa.id"
-            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white lowercase focus:border-sky-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Logo Desa / BUMDes (Opsional)</label>
-          <div class="flex items-center gap-3">
-            <img id="newLogoPreview" src="" alt="" class="hidden w-10 h-10 rounded-lg object-contain bg-white p-1 border border-slate-700" />
-            <input id="newLogoFile" type="file" accept="image/*" onchange="handleLogoFileSelect(this, 'newLogoUrl', 'newLogoPreview')"
-              class="block w-full text-xs text-slate-1990 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-sky-300 hover:file:bg-slate-700" />
-          </div>
-          <input id="newLogoUrl" type="hidden" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Password Awal Admin</label>
-            <input id="newAdminPass" type="text" value="admin123" required
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Masa Aktif Hingga (Opsional)</label>
-            <input id="newTglBerakhir" type="date"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-          </div>
-        </div>
-
-        <label class="flex items-center gap-2.5 pt-1 text-xs text-slate-300 cursor-pointer">
-          <input id="newBuatSample" type="checkbox" checked class="rounded border-slate-700 bg-slate-950 text-sky-500" />
-          <span>Buat 1 akun pelanggan uji coba otomatis (<span id="previewSamplePlg" class="text-sky-1990 font-semibold">DS3-PLG-001</span>)</span>
-        </label>
-
-        <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
-          <button type="button" onclick="closeModal('modalCreateDesa')"
-            class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">
-            Batal
-          </button>
-          <button id="btnSubmitCreateDesa" type="submit"
-            class="rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2 text-xs font-semibold text-white cursor-pointer">
-            Simpan & Aktifkan Desa
+        <div class="md:col-span-2">
+          <button type="button" onclick="saveGlobalBroadcast()"
+            class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-1.5">
+            <i class="fas fa-paper-plane"></i> Simpan Broadcast
           </button>
         </div>
-      </form>
-    </div>
-  </div>
+      </div>
+    </section>
 
-  <!-- MODAL 2: KREDENSIAL SIAP KIRIM (WHATSAPP) -->
-  <div id="modalCredentials" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-2xl border border-emerald-500/30 bg-slate-1320 p-6 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-        <h2 class="text-base font-bold text-emerald-1990">Desa Berhasil Diaktifkan!</h2>
-        <button onclick="closeModal('modalCredentials')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
+    <!-- DIREKTORI KLIEN & FILTER -->
+    <section class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200/80 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Filter Tabs -->
+        <div class="flex flex-wrap items-center gap-1.5" id="filterTabGroup">
+          <button type="button" data-filter="all" onclick="setTenantFilter('all')"
+            class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white transition">
+            Semua Desa
+          </button>
+          <button type="button" data-filter="active" onclick="setTenantFilter('active')"
+            class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+            Aktif
+          </button>
+          <button type="button" data-filter="expiring" onclick="setTenantFilter('expiring')"
+            class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+            Jatuh Tempo ≤14 Hari
+          </button>
+          <button type="button" data-filter="expired" onclick="setTenantFilter('expired')"
+            class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+            Nonaktif / Expired
+          </button>
+          <button type="button" data-filter="domain" onclick="setTenantFilter('domain')"
+            class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+            Custom Domain
+          </button>
+        </div>
+
+        <!-- Kotak Pencarian -->
+        <div class="relative w-full lg:w-72">
+          <input type="text" id="searchTenantInput" oninput="renderTenantList()"
+            placeholder="Cari nama desa, kode, atau PIC..."
+            class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-300 text-xs focus:border-sky-500 focus:ring-2 focus:ring-sky-500/15 outline-none" />
+          <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+        </div>
       </div>
 
-      <p class="text-xs text-slate-300 mb-3">
-        Salin rincian akses di bawah ini untuk dikirimkan kepada pengurus BUMDes melalui WhatsApp:
-      </p>
-
-      <pre id="credentialTextBox" class="rounded-xl bg-slate-950 border border-slate-800 p-3.5 text-xs text-slate-200 whitespace-pre-wrap leading-relaxed mb-4"></pre>
-
-      <div class="flex justify-end gap-2.5">
-        <button onclick="closeModal('modalCredentials')"
-          class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">
-          Tutup
-        </button>
-        <button onclick="copyCredentialsText()"
-          class="rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-xs font-semibold text-white cursor-pointer">
-          Salin Pesan WhatsApp
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL 3: KELOLA DESA (PROFIL, BRANDING LOGO & TEMPLATE SURAT) -->
-  <div id="modalEditDesa" class="fixed inset-0 z-199 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-2xl rounded-2xl border border-slate-800 bg-slate-1320 p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-        <h2 class="text-base font-bold text-white">Kelola Klien Desa — <span id="editDesaTitle" class="text-sky-1990"></span></h2>
-        <button onclick="closeModal('modalEditDesa')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
+      <!-- Tabel Desktop -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <th class="py-3.5 px-5">Identitas BUMDes & Domain</th>
+              <th class="py-3.5 px-4">Paket & Kuota Warga</th>
+              <th class="py-3.5 px-4">Radar Aktivitas</th>
+              <th class="py-3.5 px-4">Masa Aktif & Status</th>
+              <th class="py-3.5 px-5 text-right">Aksi Kontrol</th>
+            </tr>
+          </thead>
+          <tbody id="tenantTableBody" class="divide-y divide-slate-100 text-xs">
+            <tr>
+              <td colspan="5" class="py-12 text-center text-slate-400">
+                <i class="fas fa-circle-notch fa-spin mr-2"></i> Memuat data klien BUMDes...
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <div class="flex gap-2 border-b border-slate-800 pb-3 mb-4">
-        <button type="button" id="tabBtnProfil" onclick="switchEditTab('profil')"
-          class="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white cursor-pointer">
-          1. Profil & Langganan
-        </button>
-        <button type="button" id="tabBtnBranding" onclick="switchEditTab('branding')"
-          class="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 cursor-pointer">
-          2. Logo & Subdomain
-        </button>
-        <button type="button" id="tabBtnSurat" onclick="switchEditTab('surat')"
-          class="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 cursor-pointer">
-          3. Template Surat & Kop
+      <!-- Tampilan Kartu Responsif untuk HP -->
+      <div id="tenantMobileCards" class="md:hidden divide-y divide-slate-100"></div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER RESMI -->
+  <footer class="bg-white border-t border-slate-200/80 py-4 px-4 text-center text-xs text-slate-500">
+    Sistem ini dikembangkan oleh <strong class="text-slate-700">TitiWeb Lab, By Nuri Hartanto</strong>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- SLIDE-OVER DRAWER: EDIT DETAIL DESA & RESET PASSWORD ADMIN            -->
+  <!-- ===================================================================== -->
+  <div id="tenantDrawer" class="fixed inset-0 z-40 hidden">
+    <div onclick="closeTenantDrawer()" class="drawer-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-xs"></div>
+    <div class="drawer-panel fixed inset-y-0 right-0 max-w-lg w-full bg-white shadow-2xl border-l border-slate-200 flex flex-col z-50">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <span id="drawerKodeBadge" class="text-[10px] font-bold uppercase tracking-wider text-sky-400">DESA-001</span>
+          <h3 id="drawerTitle" class="text-base font-bold">Pengaturan Klien BUMDes</h3>
+        </div>
+        <button type="button" onclick="closeTenantDrawer()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+          <i class="fas fa-times"></i>
         </button>
       </div>
 
-      <form id="editDesaForm" class="space-y-4">
-        <input id="editIdDesa" type="hidden" />
+      <form id="editTenantForm" class="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
+        <input type="hidden" id="editIdDesa" />
 
-        <!-- TAB 1: PROFIL & LANGGANAN -->
-        <div id="tabPanelProfil" class="space-y-3.5">
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Nama BUMDes *</label>
-              <input id="editNamaBumdes" type="text" required placeholder="BUMDes Tirta Cempaka"
-                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Nama Desa *</label>
-              <input id="editNamaDesa" type="text" required placeholder="Desa Cepokorejo"
-                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Nama BUMDes / Unit Air Desa</label>
+            <input type="text" id="editNamaDesa" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 focus:border-sky-500 outline-none" />
           </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Nama Unit</label>
-              <input id="editNamaUnit" type="text"
-                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">No. WA Admin</label>
-              <input id="editNoWa" type="text"
-                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-            </div>
-          </div>
+
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Alamat Kop Surat & Struk</label>
-            <input id="editAlamatKop" type="text"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
+            <label class="block font-semibold text-slate-700 mb-1">Kecamatan</label>
+            <input type="text" id="editKecamatan" placeholder="Contoh: Jenu" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 focus:border-sky-500 outline-none" />
           </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Status Langganan</label>
-              <select id="editStatusLangganan"
-                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none">
-                <option value="Aktif">Aktif</option>
-                <option value="Nonaktif">Nonaktif (Kunci Akses)</option>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Kabupaten</label>
+            <input type="text" id="editKabupaten" placeholder="Contoh: Tuban" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 focus:border-sky-500 outline-none" />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Alamat Kop Struk / Kantor</label>
+            <input type="text" id="editAlamat" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 focus:border-sky-500 outline-none" />
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Paket Langganan</label>
+            <select id="editPaket" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 bg-white focus:border-sky-500 outline-none">
+              <option value="Standar">Standar (Subdomain / .exe)</option>
+              <option value="Custom Domain">Custom Domain Desa</option>
+              <option value="Pro Unlimited">Pro Unlimited</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Batas Kuota Pelanggan</label>
+            <input type="number" id="editMaxPelanggan" min="10" step="10" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 focus:border-sky-500 outline-none" />
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Nomor WhatsApp PIC / Ketua</label>
+            <input type="text" id="editNoWaPic" placeholder="0812xxxxxxxx" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 focus:border-sky-500 outline-none" />
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Custom Domain (Opsional)</label>
+            <input type="text" id="editCustomDomain" placeholder="air.bumdesmaju.id" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 focus:border-sky-500 outline-none" />
+          </div>
+
+          <div class="sm:col-span-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="font-semibold text-slate-700">Tanggal Jatuh Tempo Langganan</label>
+              <div class="flex gap-1.5">
+                <button type="button" onclick="extendExpiryDays(30)" class="px-2 py-1 rounded-md bg-sky-100 text-sky-700 font-bold text-[10px] hover:bg-sky-200">+30 Hari</button>
+                <button type="button" onclick="extendExpiryDays(365)" class="px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 font-bold text-[10px] hover:bg-emerald-200">+1 Tahun</button>
+              </div>
+            </div>
+            <input type="date" id="editTglExpired" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 bg-white focus:border-sky-500 outline-none" />
+
+            <div class="flex items-center justify-between pt-1">
+              <div>
+                <div class="font-semibold text-slate-700">Status Akses Desa</div>
+                <div class="text-[11px] text-slate-500">Nonaktifkan jika masa tenggang berakhir</div>
+              </div>
+              <select id="editStatus" class="rounded-lg border border-slate-300 px-3 py-1.5 font-semibold bg-white">
+                <option value="aktif">Aktif</option>
+                <option value="nonaktif">Nonaktif / Suspend</option>
               </select>
             </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Tanggal Berakhir</label>
-              <input id="editTglBerakhir" type="date"
-                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-            </div>
           </div>
-          <div class="flex flex-wrap gap-1.5 pt-1">
-            <button type="button" onclick="extendExpiryMonths(1)" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-sky-300 cursor-pointer">+1 Bulan</button>
-            <button type="button" onclick="extendExpiryMonths(6)" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-sky-300 cursor-pointer">+6 Bulan</button>
-            <button type="button" onclick="extendExpiryMonths(12)" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-sky-300 cursor-pointer">+1 Tahun</button>
-            <button type="button" onclick="document.getElementById('editTglBerakhir').value=''" class="rounded-lg bg-slate-800 hover:bg-slate-700 px-2.5 py-1 text-[11px] text-slate-1990 cursor-pointer">Tanpa Batas</button>
+
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Catatan Internal Pengembang</label>
+            <textarea id="editCatatan" rows="2" placeholder="Catatan pemasangan, nominal kontrak, atau permintaan khusus..."
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2 focus:border-sky-500 outline-none"></textarea>
           </div>
         </div>
 
-        <!-- TAB 2: LOGO & SUBDOMAIN -->
-        <div id="tabPanelBranding" class="hidden space-y-4">
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Subdomain / Custom Domain Desa</label>
-            <input id="editSubdomain" type="text" placeholder="Contoh: air.desamaju.desa.id"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white lowercase focus:border-sky-500 focus:outline-none" />
-            <p class="text-[11px] text-slate-1990 mt-1">
-              Otomatis mengganti favicon tab, logo login, dan kop dokumen saat dibuka dari domain ini.
-            </p>
+        <!-- Daftar Akun Admin Desa & Reset Password -->
+        <div class="pt-3 border-t border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold text-slate-800">Akun Admin BUMDes Terdaftar</h4>
+            <button type="button" onclick="promptAddAdminForCurrentDesa()" class="text-[11px] font-bold text-sky-600 hover:underline">
+              + Tambah Admin
+            </button>
           </div>
-
-          <div class="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-slate-200">Logo Utama BUMDes / Desa</span>
-              <button type="button" onclick="clearLogoField('editLogoUrl', 'editLogoPreview')"
-                class="text-[11px] text-rose-1990 hover:underline cursor-pointer">Hapus Logo</button>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="w-16 h-16 rounded-xl bg-white border border-slate-700 flex items-center justify-center overflow-hidden p-1.5 shrink-0">
-                <img id="editLogoPreview" src="" alt="Preview Logo" class="hidden w-full h-full object-contain" />
-                <span id="editLogoEmpty" class="text-[10px] text-slate-1990 text-center">Belum ada</span>
-              </div>
-              <div class="flex-1 space-y-2">
-                <input type="file" accept="image/*" onchange="handleLogoFileSelect(this, 'editLogoUrl', 'editLogoPreview', 'editLogoEmpty')"
-                  class="block w-full text-xs text-slate-1990 file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-sky-500 cursor-pointer" />
-                <input id="editLogoUrl" type="url" placeholder="Atau tempel URL logo (https://...)"
-                  oninput="syncImagePreview(this.value, 'editLogoPreview', 'editLogoEmpty')"
-                  class="w-full rounded-lg bg-slate-1320 border border-slate-800 px-2.5 py-1.5 text-xs text-slate-200 focus:border-sky-500 focus:outline-none" />
-              </div>
-            </div>
-          </div>
+          <div id="drawerAdminList" class="space-y-2"></div>
         </div>
+      </form>
 
-        <!-- TAB 3: TEMPLATE SURAT & KOP -->
-        <div id="tabPanelSurat" class="hidden space-y-3.5">
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Jabatan Penandatangan</label>
-              <input id="tplJabatan" type="text" placeholder="Ketua Unit Air Bersih"
-                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Nama Penandatangan</label>
-              <input id="tplNamaPejabat" type="text" placeholder="Contoh: H. Ahmad Fauzi"
-                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Format Penomoran Surat</label>
-              <input id="tplFormatNomor" type="text" placeholder="{{no}}/SPK-AIR/{{prefix}}/{{bulan}}/{{tahun}}"
-                class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-slate-200 focus:border-sky-500 focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Upload TTD & Stempel (PNG)</label>
-              <input type="file" accept="image/png,image/*" onchange="handleLogoFileSelect(this, 'tplTtdUrl', 'tplTtdPreview')"
-                class="block w-full text-xs text-slate-1990 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-800 file:px-2.5 file:py-1.5 file:text-xs file:text-sky-300 hover:file:bg-slate-700" />
-              <input id="tplTtdUrl" type="hidden" />
-              <img id="tplTtdPreview" src="" alt="" class="hidden mt-1.5 h-10 object-contain bg-white rounded px-2" />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Catatan Kaki Nota / Invoice</label>
-            <input id="tplFooterNota" type="text" placeholder="Contoh: Pembayaran paling lambat tgl 20 setiap bulan. Terima kasih."
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white focus:border-sky-500 focus:outline-none" />
-          </div>
-
-          <div>
-            <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
-              <label class="text-xs font-medium text-slate-300">Redaksi Surat Peringatan Tunggakan / Pemutusan</label>
-              <button type="button" onclick="previewSuratModal()"
-                class="text-[11px] font-semibold text-sky-1990 hover:underline cursor-pointer">
-                Pratinjau Kop & Surat
-              </button>
-            </div>
-            <textarea id="tplIsiSuratPeringatan" rows="4"
-              class="w-full rounded-xl bg-slate-950 border border-slate-800 p-3 text-xs text-slate-200 leading-relaxed focus:border-sky-500 focus:outline-none"></textarea>
-            <div class="flex flex-wrap gap-1.5 mt-1.5">
-              <span class="text-[10px] text-slate-1990 self-center">Variabel:</span>
-              <button type="button" onclick="insertTemplateVar('{{nama_bumdes}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{nama_bumdes}}</button>
-              <button type="button" onclick="insertTemplateVar('{{nama_desa}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{nama_desa}}</button>
-              <button type="button" onclick="insertTemplateVar('{{nama_pelanggan}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{nama_pelanggan}}</button>
-              <button type="button" onclick="insertTemplateVar('{{id_pelanggan}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{id_pelanggan}}</button>
-              <button type="button" onclick="insertTemplateVar('{{alamat}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{alamat}}</button>
-              <button type="button" onclick="insertTemplateVar('{{total_tunggakan}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{total_tunggakan}}</button>
-              <button type="button" onclick="insertTemplateVar('{{jatuh_tempo}}')" class="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-sky-300 hover:bg-slate-700 cursor-pointer">{{jatuh_tempo}}</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
-          <button type="button" onclick="closeModal('modalEditDesa')"
-            class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+        <button type="button" onclick="deleteTenantConfirm()" class="px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition">
+          <i class="fas fa-trash-can mr-1"></i> Hapus Desa
+        </button>
+        <div class="flex gap-2">
+          <button type="button" onclick="closeTenantDrawer()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-100">
             Batal
           </button>
-          <button id="btnSubmitEditDesa" type="submit"
-            class="rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2 text-xs font-semibold text-white cursor-pointer">
-            Simpan Semua Pengaturan
+          <button type="button" onclick="submitEditTenant()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-md">
+            Simpan Perubahan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL PENDAFTARAN DESA KLIEN BARU                                     -->
+  <!-- ===================================================================== -->
+  <div id="newTenantModal" class="fixed inset-0 z-40 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <h3 class="font-bold text-sm sm:text-base flex items-center gap-2">
+          <i class="fas fa-plus-circle text-sky-400"></i> Daftarkan Klien BUMDes Baru
+        </h3>
+        <button type="button" onclick="closeNewTenantModal()" class="text-slate-400 hover:text-white">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="createTenantForm" class="p-6 space-y-3.5 text-xs max-h-[80vh] overflow-y-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Kode Unik Desa (`id_desa`)*</label>
+            <input type="text" id="newIdDesa" required placeholder="Contoh: desa2 atau DESA-002"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 font-mono focus:border-sky-500 outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Paket Langganan</label>
+            <select id="newPaket" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 bg-white">
+              <option value="Standar">Standar (300 Pelanggan)</option>
+              <option value="Custom Domain">Custom Domain (500 Pelanggan)</option>
+              <option value="Pro Unlimited">Pro Unlimited</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Nama BUMDes / Pengelola Air*</label>
+            <input type="text" id="newNamaDesa" required placeholder="Contoh: HIPPAM Tirta Jaya Desa Cepokorejo"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 focus:border-sky-500 outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Kecamatan</label>
+            <input type="text" id="newKecamatan" placeholder="Nama Kecamatan" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">No. WhatsApp PIC Desa</label>
+            <input type="text" id="newNoWa" placeholder="0812xxxxxxxx" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 outline-none" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Alamat Kop Surat / Struk</label>
+            <input type="text" id="newAlamat" placeholder="Jl. Raya Desa No. 1, Kec. ..., Kab. ..." class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 outline-none" />
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-sky-50/80 border border-sky-200 space-y-3">
+          <div class="font-bold text-sky-900 flex items-center gap-1.5">
+            <i class="fas fa-user-shield"></i> Akun Admin Utama Desa Pertama
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Username Admin*</label>
+              <input type="text" id="newAdminUser" required placeholder="admin_desa2"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Password Awal*</label>
+              <input type="text" id="newAdminPass" required value="admin123"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeNewTenantModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-600">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold shadow-md">
+            Simpan & Buat Paket Serah Terima
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL PRATINJAU SURAT RESMI -->
-  <div id="modalPreviewSurat" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-xl rounded-2xl bg-white text-slate-1320 p-7 shadow-2xl max-h-[132vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b-2 border-slate-1320 pb-3 mb-4">
-        <div class="flex items-center gap-3.5">
-          <img id="prvLogo" src="" alt="Logo" class="hidden w-14 h-14 object-contain" />
-          <div>
-            <h3 id="prvBumdes" class="text-base font-bold uppercase tracking-wide text-slate-1320"></h3>
-            <p id="prvDesaUnit" class="text-xs font-semibold text-slate-700"></p>
-            <p id="prvAlamat" class="text-[11px] text-slate-600"></p>
-          </div>
-        </div>
-        <button onclick="closeModal('modalPreviewSurat')" class="text-slate-1990 hover:text-slate-1320 text-xl font-bold cursor-pointer">&times;</button>
+  <!-- ===================================================================== -->
+  <!-- MODAL PAKET ONBOARDING / SERAH TERIMA KLIEN                           -->
+  <!-- ===================================================================== -->
+  <div id="onboardingModal" class="fixed inset-0 z-40 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 bg-emerald-700 text-white flex items-center justify-between">
+        <h3 class="font-bold text-sm sm:text-base flex items-center gap-2">
+          <i class="fas fa-check-circle"></i> Paket Serah Terima Klien Siap Kirim
+        </h3>
+        <button type="button" onclick="closeOnboardingModal()" class="text-emerald-200 hover:text-white">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-
-      <div class="text-xs space-y-3 leading-relaxed">
-        <p>Nomor: <span id="prvNomor" class="font-semibold"></span></p>
-        <p id="prvBody" class="whitespace-pre-line text-slate-800"></p>
-        <div class="pt-6 flex justify-end">
-          <div class="text-center w-48">
-            <p id="prvJabatan" class="font-semibold"></p>
-            <img id="prvTtd" src="" alt="TTD" class="hidden h-14 mx-auto my-1 object-contain" />
-            <div id="prvTtdSpacer" class="h-12"></div>
-            <p id="prvPejabat" class="font-bold underline"></p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL 4: RESET PASSWORD ADMIN DESA -->
-  <div id="modalResetAdmin" class="fixed inset-0 z-199 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-1320 p-6 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-        <h2 class="text-base font-bold text-white">Reset Password Admin Desa</h2>
-        <button onclick="closeModal('modalResetAdmin')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
-      </div>
-      <form id="resetAdminForm" class="space-y-3.5">
-        <input id="resetIdDesa" type="hidden" />
-        <p class="text-xs text-slate-300">
-          Target Akun: <span id="resetTargetInfo" class="font-semibold text-sky-1990"></span>
+      <div class="p-6 space-y-4 text-xs">
+        <p class="text-slate-600">
+          Salin teks panduan di bawah ini atau kirimkan langsung ke WhatsApp pengurus BUMDes sebagai dokumentasi serah terima sistem:
         </p>
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Password Baru Admin *</label>
-          <input id="resetPassBaru" type="text" required value="admin123"
-            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-        </div>
-        <div class="flex justify-end gap-2.5 pt-2">
-          <button type="button" onclick="closeModal('modalResetAdmin')"
-            class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">
-            Batal
+        <textarea id="onboardingTextPreview" rows="12" readonly
+          class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3.5 font-mono text-[11px] leading-relaxed text-slate-800 outline-none"></textarea>
+        <div class="flex flex-wrap justify-end gap-2">
+          <button type="button" onclick="copyOnboardingText()"
+            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold flex items-center gap-1.5">
+            <i class="fas fa-copy"></i> Salin Teks
           </button>
-          <button type="submit"
-            class="rounded-xl bg-amber-600 hover:bg-amber-500 px-4 py-2 text-xs font-semibold text-white cursor-pointer">
-            Reset Password
+          <button type="button" id="btnSendOnboardingWa"
+            class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold flex items-center gap-1.5">
+            <i class="fab fa-whatsapp"></i> Kirim via WhatsApp
           </button>
         </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL 5: GANTI PASSWORD MASTER ADMIN -->
-  <div id="modalPasswordMaster" class="fixed inset-0 z-199 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-1320 p-6 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-        <h2 class="text-base font-bold text-white">Ganti Password Master</h2>
-        <button onclick="closeModal('modalPasswordMaster')" class="text-slate-1990 hover:text-white text-lg cursor-pointer">&times;</button>
       </div>
-      <form id="gantiPassMasterForm" class="space-y-3.5">
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Password Master Baru (Min. 6 karakter)</label>
-          <input id="masterPassBaru" type="password" required minlength="6"
-            class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none" />
-        </div>
-        <div class="flex justify-end gap-2.5 pt-2">
-          <button type="button" onclick="closeModal('modalPasswordMaster')"
-            class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">
-            Batal
-          </button>
-          <button type="submit"
-            class="rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2 text-xs font-semibold text-white cursor-pointer">
-            Simpan Password
-          </button>
-        </div>
-      </form>
     </div>
   </div>
 
+  <!-- ===================================================================== -->
+  <!-- LOGIKA COMMAND CENTER (SUPABASE & KONTROL MULTI-TENANT)               -->
+  <!-- ===================================================================== -->
   <script>
-    const SUPABASE_URL = 'https://qbbihcseqjrtwijyvdrl.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_wU4HyrXrTYhKXZdtLOmiCg_mQHB82OT';
-    const STORAGE_BUCKET = 'pdam-files';
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Opsional: Isi manual jika tidak menggunakan auto-deteksi dari supabase-adapter.js
+    const MANUAL_SUPABASE_URL = '';
+    const MANUAL_SUPABASE_KEY = '';
 
-    const SESSION_KEY = 'bumdes_master_session';
-    let masterAuth = null;
+    let sbClient = null;
     let allDesaList = [];
-    let nextSuggestion = { id_desa: 'DESA-003', kode_prefix: 'DS3' };
+    let allUsersList = [];
+    let allPelangganList = [];
+    let activeFilter = 'all';
 
-    const DEFAULT_SURAT_BODY =
-`Dengan hormat,
-Berdasarkan catatan administrasi {{nama_bumdes}} ({{nama_desa}}), bersama ini kami sampaikan pemberitahuan tunggakan rekening air atas nama:
-
-Nama Pelanggan : {{nama_pelanggan}}
-ID Pelanggan   : {{id_pelanggan}}
-Alamat         : {{alamat}}
-Total Tagihan  : {{total_tunggakan}}
-
-Mohon agar dapat segera melakukan pelunasan sebelum tanggal {{jatuh_tempo}} guna menghindari pemutusan sementara sambungan air. Atas perhatian dan kerja samanya kami ucapkan terima kasih.`;
-
-    function showToast(msg, isError = false) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.className = `fixed top-5 right-5 z-50 max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl ${
-        isError
-          ? 'bg-rose-950/95 border-rose-500/199 text-rose-200'
-          : 'bg-emerald-950/95 border-emerald-500/199 text-emerald-200'
-      }`;
-      el.classList.remove('hidden');
-      clearTimeout(el._timer);
-      el._timer = setTimeout(() => el.classList.add('hidden'), 19900);
+    // 1. KEAMANAN PIN SUPER ADMIN
+    function getMasterPin() {
+      return localStorage.getItem('titiweb_master_pin') || '202699';
     }
 
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-    function getAuthPayload() {
-      return masterAuth ? { username: masterAuth.username, password: masterAuth.password } : null;
-    }
-
-    function getBaseAppUrl() {
-      return window.location.href.replace(/master\.html.*$/i, 'index.html');
-    }
-
-    async function handleLogoFileSelect(inputEl, targetUrlInputId, previewImgId, emptyLabelId) {
-      const file = inputEl.files && inputEl.files[0];
-      if (!file) return;
-
-      try {
-        showToast('Mengunggah gambar...');
-        const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-        const fileName = `branding/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-        const { error: uploadErr } = await sb.storage
-          .from(STORAGE_BUCKET)
-          .upload(fileName, file, { contentType: file.type, upsert: false });
-
-        if (uploadErr) throw new Error(uploadErr.message);
-
-        const { data: pubData } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(fileName);
-        const publicUrl = pubData.publicUrl;
-
-        document.getElementById(targetUrlInputId).value = publicUrl;
-        syncImagePreview(publicUrl, previewImgId, emptyLabelId);
-        showToast('Gambar berhasil diunggah!');
-      } catch (err) {
-        showToast('Gagal mengunggah gambar: ' + err.message, true);
-      }
-    }
-
-    function syncImagePreview(url, previewImgId, emptyLabelId) {
-      const img = document.getElementById(previewImgId);
-      const empty = emptyLabelId ? document.getElementById(emptyLabelId) : null;
-      if (url && url.trim() !== '') {
-        img.src = url.trim();
-        img.classList.remove('hidden');
-        if (empty) empty.classList.add('hidden');
-      } else {
-        img.src = '';
-        img.classList.add('hidden');
-        if (empty) empty.classList.remove('hidden');
-      }
-    }
-
-    function clearLogoField(urlInputId, previewImgId) {
-      document.getElementById(urlInputId).value = '';
-      syncImagePreview('', previewImgId, 'editLogoEmpty');
-    }
-
-    (function init() {
-      try {
-        const saved = sessionStorage.getItem(SESSION_KEY);
-        if (saved) {
-          masterAuth = JSON.parse(saved);
-          enterDashboard();
-        }
-      } catch (_) {}
-
-      document.getElementById('newKodePrefix').addEventListener('input', (e) => {
-        const val = (e.target.value || 'DS3').trim().toUpperCase();
-        document.getElementById('previewSamplePlg').textContent = `${val}-PLG-001`;
-      });
-    })();
-
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    document.getElementById('pinUnlockForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = document.getElementById('btnLogin');
-      const username = document.getElementById('loginUser').value.trim();
-      const password = document.getElementById('loginPass').value.trim();
-
-      btn.disabled = true;
-      btn.textContent = 'Memverifikasi...';
-
-      try {
-        const { data, error } = await sb.rpc('loginMasterAdmin', {
-          p_username: username,
-          p_password: password
-        });
-        if (error) throw new Error(error.message);
-        if (!data || data.status !== 'success') {
-          throw new Error(data?.message || 'Login gagal.');
-        }
-
-        masterAuth = {
-          username,
-          password,
-          nama_lengkap: data.master?.nama_lengkap || 'Super Admin'
-        };
-        sessionStorage.setItem(SESSION_KEY, JSON.stringify(masterAuth));
-        enterDashboard();
-      } catch (err) {
-        showToast(err.message, true);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Masuk ke Master Panel';
+      const entered = document.getElementById('inputMasterPin').value.trim();
+      if (entered === getMasterPin()) {
+        sessionStorage.setItem('titiweb_master_unlocked', '1');
+        document.getElementById('masterLockScreen').classList.add('hidden');
+        await initSupabaseAndLoad();
+      } else {
+        Swal.fire({ icon: 'error', title: 'PIN Salah', text: 'PIN Super Admin tidak sesuai.', confirmButtonColor: '#0284c7' });
       }
     });
 
-    function logoutMaster() {
-      sessionStorage.removeItem(SESSION_KEY);
-      masterAuth = null;
-      document.getElementById('dashboardView').classList.add('hidden');
-      document.getElementById('loginView').classList.remove('hidden');
+    function lockMasterPanel() {
+      sessionStorage.removeItem('titiweb_master_unlocked');
+      document.getElementById('inputMasterPin').value = '';
+      document.getElementById('masterLockScreen').classList.remove('hidden');
     }
 
-    async function enterDashboard() {
-      document.getElementById('loginView').classList.add('hidden');
-      document.getElementById('dashboardView').classList.remove('hidden');
-      document.getElementById('masterNameLabel').textContent = masterAuth.nama_lengkap;
-      await loadMasterData();
-    }
+    // 2. INISIALISASI KONEKSI SUPABASE OTOMATIS
+    async function resolveSupabaseCredentials() {
+      let url = MANUAL_SUPABASE_URL || localStorage.getItem('titiweb_sb_url') || '';
+      let key = MANUAL_SUPABASE_KEY || localStorage.getItem('titiweb_sb_key') || '';
 
-    async function loadMasterData() {
-      try {
-        const { data, error } = await sb.rpc('masterGetDashboardData', {
-          p_auth: getAuthPayload()
-        });
-        if (error) throw new Error(error.message);
-        if (!data || data.status !== 'success') {
-          if ((data?.message || '').toLowerCase().includes('ditolak')) logoutMaster();
-          throw new Error(data?.message || 'Gagal memuat data.');
-        }
-
-        allDesaList = data.desaList || [];
-        if (data.nextSuggestion) nextSuggestion = data.nextSuggestion;
-
-        updateKPIs();
-        renderDesaTable();
-      } catch (err) {
-        showToast(err.message, true);
+      if (!url || !key) {
+        try {
+          const resp = await fetch('supabase-adapter.js?v=' + Date.now());
+          if (resp.ok) {
+            const code = await resp.text();
+            const urlMatch = code.match(/https:\/\/[a-z0-9-]+\.supabase\.co/i);
+            const keyMatch = code.match(/eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/);
+            if (urlMatch && keyMatch) {
+              url = urlMatch[0];
+              key = keyMatch[0];
+              localStorage.setItem('titiweb_sb_url', url);
+              localStorage.setItem('titiweb_sb_key', key);
+            }
+          }
+        } catch (_) {}
       }
+      return { url, key };
     }
 
-    function updateKPIs() {
-      const total = allDesaList.length;
-      const nonaktif = allDesaList.filter(
-        (d) => (d.status_langganan || '').toLowerCase() !== 'aktif' || d.is_expired
-      ).length;
-      const aktif = total - nonaktif;
-      const totalPlg = allDesaList.reduce((acc, d) => acc + Number(d.jumlah_pelanggan || 0), 0);
+    async function initSupabaseAndLoad() {
+      const badge = document.getElementById('dbStatusBadge');
+      const { url, key } = await resolveSupabaseCredentials();
 
-      document.getElementById('kpiTotalDesa').textContent = total;
-      document.getElementById('kpiAktifDesa').textContent = aktif;
-      document.getElementById('kpiNonaktifDesa').textContent = nonaktif;
-      document.getElementById('kpiTotalPelanggan').textContent = totalPlg.toLocaleString('id-ID');
-    }
-
-    function copyTextDirect(text, label) {
-      navigator.clipboard.writeText(text).then(() => showToast(`${label} disalin ke clipboard!`));
-    }
-
-    function renderDesaTable() {
-      const tbody = document.getElementById('desaTableBody');
-      const q = document.getElementById('searchDesaInput').value.trim().toLowerCase();
-      const filterStatus = document.getElementById('filterStatusSelect').value;
-
-      const filtered = allDesaList.filter((d) => {
-        const isNonaktif = (d.status_langganan || '').toLowerCase() !== 'aktif' || d.is_expired;
-        if (filterStatus === 'AKTIF' && isNonaktif) return false;
-        if (filterStatus === 'NONAKTIF' && !isNonaktif) return false;
-
-        if (!q) return true;
-        return (
-          (d.id_desa || '').toLowerCase().includes(q) ||
-          (d.kode_prefix || '').toLowerCase().includes(q) ||
-          (d.nama_bumdes || '').toLowerCase().includes(q) ||
-          (d.nama_desa || '').toLowerCase().includes(q) ||
-          (d.subdomain || '').toLowerCase().includes(q) ||
-          (d.alamat_kop || '').toLowerCase().includes(q)
-        );
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-1990">Tidak ada data klien desa yang sesuai.</td></tr>`;
+      if (!url || !key) {
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span><span>Belum Terhubung</span>';
+        openMasterSettings(true);
         return;
       }
 
-      const baseAppUrl = getBaseAppUrl();
+      sbClient = window.supabase.createClient(url, key);
+      badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>Supabase Terhubung</span>';
+      await loadAllMasterData(false);
+    }
 
-      tbody.innerHTML = filtered.map((d) => {
-        const isInactive = (d.status_langganan || '').toLowerCase() !== 'aktif';
-        const isExpired = Boolean(d.is_expired);
+    async function openMasterSettings(forceConfig = false) {
+      const currentUrl = localStorage.getItem('titiweb_sb_url') || '';
+      const currentKey = localStorage.getItem('titiweb_sb_key') || '';
+      const currentPin = getMasterPin();
 
-        let statusBadge = `<span class="inline-flex items-center rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-medium text-emerald-300">Aktif</span>`;
-        if (isInactive) {
-          statusBadge = `<span class="inline-flex items-center rounded-full bg-rose-500/15 border border-rose-500/30 px-2.5 py-0.5 text-xs font-medium text-rose-300">Nonaktif</span>`;
-        } else if (isExpired) {
-          statusBadge = `<span class="inline-flex items-center rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs font-medium text-amber-300">Expired</span>`;
+      const { value: formValues } = await Swal.fire({
+        title: 'Pengaturan Master & Koneksi',
+        html: `
+          <div style="text-align:left;font-size:12px;display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <label style="font-weight:700;display:block;margin-bottom:4px;">PIN Super Admin Baru</label>
+              <input id="swalPin" type="text" value="${currentPin}" class="swal2-input" style="margin:0;width:100%;font-size:13px;" />
+            </div>
+            <div>
+              <label style="font-weight:700;display:block;margin-bottom:4px;">Supabase Project URL</label>
+              <input id="swalSbUrl" type="text" value="${currentUrl}" placeholder="https://xxxx.supabase.co" class="swal2-input" style="margin:0;width:100%;font-size:13px;" />
+            </div>
+            <div>
+              <label style="font-weight:700;display:block;margin-bottom:4px;">Supabase Anon Public Key</label>
+              <input id="swalSbKey" type="text" value="${currentKey}" placeholder="eyJhbGci..." class="swal2-input" style="margin:0;width:100%;font-size:13px;" />
+            </div>
+          </div>
+        `,
+        showCancelButton: !forceConfig,
+        confirmButtonText: 'Simpan Pengaturan',
+        confirmButtonColor: '#0284c7',
+        preConfirm: () => ({
+          pin: document.getElementById('swalPin').value.trim(),
+          url: document.getElementById('swalSbUrl').value.trim(),
+          key: document.getElementById('swalSbKey').value.trim()
+        })
+      });
+
+      if (formValues) {
+        if (formValues.pin) localStorage.setItem('titiweb_master_pin', formValues.pin);
+        if (formValues.url) localStorage.setItem('titiweb_sb_url', formValues.url);
+        if (formValues.key) localStorage.setItem('titiweb_sb_key', formValues.key);
+        await initSupabaseAndLoad();
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Pengaturan diperbarui', showConfirmButton: false, timer: 1800 });
+      }
+    }
+
+    // 3. MUAT SELURUH DATA TENANT, USER, PELANGGAN & BROADCAST
+    async function loadAllMasterData(showToast = false) {
+      if (!sbClient) return;
+      const icon = document.getElementById('headerRefreshIcon');
+      icon.classList.add('fa-spin');
+
+      try {
+        const [resDesa, resUsers, resPelanggan, resBroadcast] = await Promise.all([
+          sbClient.from('tbl_desa').select('*').order('id_desa', { ascending: true }),
+          sbClient.from('tbl_users').select('*'),
+          sbClient.from('tbl_pelanggan').select('id_desa, created_at'),
+          sbClient.from('tbl_pengumuman_global').select('*').eq('id', 1).maybeSingle()
+        ]);
+
+        if (resDesa.error) throw resDesa.error;
+
+        allDesaList = resDesa.data || [];
+        allUsersList = resUsers.data || [];
+        allPelangganList = resPelanggan.data || [];
+
+        if (resBroadcast.data) {
+          document.getElementById('broadcastAktif').checked = Boolean(resBroadcast.data.aktif);
+          document.getElementById('broadcastTipe').value = resBroadcast.data.tipe || 'info';
+          document.getElementById('broadcastJudul').value = resBroadcast.data.judul || '';
+          document.getElementById('broadcastIsi').value = resBroadcast.data.isi || '';
         }
 
-        const masaAktifText = d.tgl_berakhir ? `s.d. ${d.tgl_berakhir}` : 'Tanpa Batas Waktu';
-        const paramLink = `${baseAppUrl}?desa=${encodeURIComponent((d.kode_prefix || '').toLowerCase())}`;
-        const logoHtml = d.logo_url
-          ? `<img src="${d.logo_url}" alt="Logo" class="w-10 h-10 rounded-lg bg-white object-contain p-1 border border-slate-700 shrink-0" />`
-          : `<div class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-1990 shrink-0">${d.kode_prefix}</div>`;
+        renderKpiCards();
+        renderTenantList();
+
+        if (showToast) {
+          Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Data Master diperbarui', showConfirmButton: false, timer: 1600 });
+        }
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Gagal Memuat Data', text: err.message, confirmButtonColor: '#0284c7' });
+      } finally {
+        icon.classList.remove('fa-spin');
+      }
+    }
+
+    // 4. HITUNG SISA HARI JATUH TEMPO & STATUS
+    function getExpiryInfo(desa) {
+      const statusRaw = String(desa.status || 'aktif').toLowerCase();
+      const isInactive = statusRaw === 'nonaktif' || statusRaw === 'suspend' || desa.is_active === false;
+
+      if (!desa.tgl_expired) {
+        return { daysLeft: 999, label: 'Tidak dibatasi', badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200', isExpired: isInactive, isExpiringSoon: false, isInactive };
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expDate = new Date(desa.tgl_expired + 'T00:00:00');
+      const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+      if (isInactive || diffDays < 0) {
+        const text = diffDays < 0 ? `Lewat ${Math.abs(diffDays)} hari` : 'Disuspend';
+        return { daysLeft: diffDays, label: text, badgeClass: 'bg-rose-50 text-rose-700 border-rose-200', isExpired: true, isExpiringSoon: false, isInactive: true };
+      }
+      if (diffDays <= 14) {
+        return { daysLeft: diffDays, label: `Sisa ${diffDays} hari`, badgeClass: 'bg-amber-50 text-amber-700 border-amber-200', isExpired: false, isExpiringSoon: true, isInactive: false };
+      }
+      return { daysLeft: diffDays, label: `Aktif (${diffDays} hr)`, badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200', isExpired: false, isExpiringSoon: false, isInactive: false };
+    }
+
+    function getDesaStats(idDesa) {
+      const usersInDesa = allUsersList.filter((u) => String(u.id_desa) === String(idDesa));
+      const petugasCount = usersInDesa.filter((u) => String(u.role).toLowerCase() === 'petugas').length;
+      const adminList = usersInDesa.filter((u) => String(u.role).toLowerCase().includes('admin'));
+
+      // Hitung pelanggan dari tbl_pelanggan atau tbl_users ber-role pelanggan
+      const pelFromTable = allPelangganList.filter((p) => String(p.id_desa) === String(idDesa)).length;
+      const pelFromUsers = usersInDesa.filter((u) => String(u.role).toLowerCase() === 'pelanggan').length;
+      const pelangganCount = Math.max(pelFromTable, pelFromUsers);
+
+      return { pelangganCount, petugasCount, adminList };
+    }
+
+    function renderKpiCards() {
+      let aktif = 0;
+      let expiring = 0;
+      let nonaktif = 0;
+      let totalPelanggan = 0;
+      let totalPetugas = 0;
+
+      allDesaList.forEach((d) => {
+        const exp = getExpiryInfo(d);
+        const st = getDesaStats(d.id_desa);
+        totalPelanggan += st.pelangganCount;
+        totalPetugas += st.petugasCount;
+
+        if (exp.isInactive || exp.isExpired) nonaktif++;
+        else {
+          aktif++;
+          if (exp.isExpiringSoon) expiring++;
+        }
+      });
+
+      document.getElementById('kpiDesaAktif').textContent = aktif;
+      document.getElementById('kpiDesaTotal').textContent = `dari ${allDesaList.length} terdaftar`;
+      document.getElementById('kpiTotalPelanggan').textContent = totalPelanggan.toLocaleString('id-ID');
+      document.getElementById('kpiTotalPetugas').textContent = `• ${totalPetugas} petugas`;
+      document.getElementById('kpiAkanExpired').textContent = expiring;
+      document.getElementById('kpiNonaktif').textContent = nonaktif;
+    }
+
+    // 5. RENDER DAFTAR KLIEN DESA
+    function setTenantFilter(filter) {
+      activeFilter = filter;
+      document.querySelectorAll('.filter-pill').forEach((btn) => {
+        if (btn.dataset.filter === filter) {
+          btn.className = 'filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white transition';
+        } else {
+          btn.className = 'filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+        }
+      });
+      renderTenantList();
+    }
+
+    function renderTenantList() {
+      const keyword = (document.getElementById('searchTenantInput').value || '').toLowerCase().trim();
+      const tbody = document.getElementById('tenantTableBody');
+      const mobileBox = document.getElementById('tenantMobileCards');
+
+      const filtered = allDesaList.filter((d) => {
+        const exp = getExpiryInfo(d);
+        if (activeFilter === 'active' && (exp.isInactive || exp.isExpired)) return false;
+        if (activeFilter === 'expiring' && !exp.isExpiringSoon) return false;
+        if (activeFilter === 'expired' && !(exp.isInactive || exp.isExpired)) return false;
+        if (activeFilter === 'domain' && !d.custom_domain) return false;
+
+        if (!keyword) return true;
+        const nama = (d.nama_desa || d.nama_bumdes || '').toLowerCase();
+        const kode = String(d.id_desa || '').toLowerCase();
+        const kec = (d.kecamatan || d.alamat || '').toLowerCase();
+        const wa = (d.no_wa_pic || '').toLowerCase();
+        return nama.includes(keyword) || kode.includes(keyword) || kec.includes(keyword) || wa.includes(keyword);
+      });
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400">Tidak ada data klien desa yang sesuai filter.</td></tr>`;
+        mobileBox.innerHTML = `<div class="p-8 text-center text-xs text-slate-400">Tidak ada data klien desa yang sesuai filter.</div>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((d) => {
+        const namaDesa = d.nama_desa || d.nama_bumdes || d.id_desa;
+        const exp = getExpiryInfo(d);
+        const st = getDesaStats(d.id_desa);
+        const maxPel = Number(d.max_pelanggan) || 300;
+        const pct = Math.min(100, Math.round((st.pelangganCount / maxPel) * 100));
+        const barColor = pct >= 90 ? 'bg-rose-500' : pct >= 70 ? 'bg-amber-500' : 'bg-sky-500';
 
         return `
-          <tr class="hover:bg-slate-800/199 transition">
-            <td class="py-3.5 px-4 align-top">
-              <div class="font-bold text-white">${d.id_desa}</div>
-              <span class="inline-block mt-1 rounded bg-sky-500/15 border border-sky-500/30 px-2 py-0.5 text-[11px] font-semibold text-sky-300">
-                Kode: ${d.kode_prefix}
-              </span>
-              <div class="mt-1.5">
-                <code class="text-[11px] text-amber-300">${d.admin_username}</code>
-              </div>
-            </td>
-            <td class="py-3.5 px-4 align-top">
+          <tr class="hover:bg-slate-50/90 transition">
+            <td class="py-4 px-5">
               <div class="flex items-start gap-3">
-                ${logoHtml}
+                <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 font-bold flex items-center justify-center shrink-0 uppercase">
+                  ${String(d.id_desa).slice(0, 3)}
+                </div>
                 <div>
-                  <div class="font-semibold text-white">${d.nama_bumdes}</div>
-                  <div class="text-xs font-medium text-sky-300">${d.nama_desa || '-'}</div>
-                  <div class="text-xs text-slate-1990">${d.nama_unit || 'Unit Air Bersih'} • ${d.alamat_kop || '-'}</div>
-                  ${d.no_wa_admin ? `<div class="text-[11px] text-emerald-1990 mt-0.5">WA: ${d.no_wa_admin}</div>` : ''}
+                  <div class="font-bold text-slate-900 text-xs sm:text-sm">${namaDesa}</div>
+                  <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                    <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-mono text-[10px] font-semibold">${d.id_desa}</span>
+                    ${d.kecamatan ? `<span class="text-[11px] text-slate-500">• Kec. ${d.kecamatan}</span>` : ''}
+                    ${d.custom_domain ? `<span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-semibold"><i class="fas fa-globe mr-1"></i>${d.custom_domain}</span>` : ''}
+                  </div>
                 </div>
               </div>
             </td>
-            <td class="py-3.5 px-4 align-top space-y-1.5">
-              ${d.subdomain
-                ? `<div class="text-xs font-medium text-sky-300">${d.subdomain}</div>`
-                : `<div class="text-[11px] text-slate-500 italic">Belum ada custom subdomain</div>`
-              }
-              <button onclick="copyTextDirect('${paramLink}', 'Link khusus ${d.nama_bumdes}')"
-                class="inline-flex items-center gap-1 rounded bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-[11px] text-slate-300 cursor-pointer">
-                Salin Link (?desa=${(d.kode_prefix || '').toLowerCase()})
-              </button>
+
+            <td class="py-4 px-4">
+              <div class="font-semibold text-slate-800">${d.paket || 'Standar'}</div>
+              <div class="w-36 bg-slate-200 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                <div class="${barColor} h-full rounded-full" style="width:${pct}%"></div>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-1">${st.pelangganCount} / ${maxPel} pelanggan</div>
             </td>
-            <td class="py-3.5 px-4 align-top text-center">
-              <div class="font-semibold text-white">${d.jumlah_pelanggan} <span class="text-xs font-normal text-slate-1990">Plg</span></div>
-              <div class="text-xs text-slate-1990">${d.jumlah_user} Akun Staf</div>
+
+            <td class="py-4 px-4">
+              <div class="text-slate-700 font-medium"><i class="fas fa-user-tie text-slate-400 mr-1"></i> ${st.adminList.length} Admin</div>
+              <div class="text-slate-500 text-[11px] mt-0.5"><i class="fas fa-motorcycle text-slate-400 mr-1"></i> ${st.petugasCount} Petugas</div>
             </td>
-            <td class="py-3.5 px-4 align-top">
-              ${statusBadge}
-              <div class="text-xs text-slate-1990 mt-1">${masaAktifText}</div>
+
+            <td class="py-4 px-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border text-[11px] font-semibold ${exp.badgeClass}">
+                ${exp.label}
+              </span>
+              <div class="text-[10px] text-slate-400 mt-1">Exp: ${d.tgl_expired || '-'}</div>
             </td>
-            <td class="py-3.5 px-4 align-top text-right">
-              <div class="inline-flex flex-wrap justify-end gap-1.5">
-                <button onclick='openEditDesaModal(${JSON.stringify(d).replace(/'/g, "&#39;")})'
-                  class="rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 text-xs font-medium text-slate-200 cursor-pointer">
-                  Kelola
+
+            <td class="py-4 px-5 text-right">
+              <div class="inline-flex items-center gap-1.5">
+                <button type="button" onclick="openSupportMode('${d.id_desa}')" title="Masuk ke Panel Admin Desa"
+                  class="px-2.5 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-600 text-sky-700 hover:text-white border border-sky-200 font-semibold text-[11px] transition">
+                  <i class="fas fa-arrow-up-right-from-square mr-1"></i> Panel
                 </button>
-                <button onclick="openResetAdminModal('${d.id_desa}', '${d.admin_username}')"
-                  class="rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1.5 text-xs font-medium text-amber-300 cursor-pointer">
-                  Reset Pass
+                <button type="button" onclick="openOnboardingModal('${d.id_desa}')" title="Salin Pesan Serah Terima"
+                  class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                  <i class="fas fa-share-nodes"></i>
+                </button>
+                <button type="button" onclick="sendExpiryReminderWa('${d.id_desa}')" title="Kirim Pengingat WA PIC"
+                  class="p-2 rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white transition">
+                  <i class="fab fa-whatsapp"></i>
+                </button>
+                <button type="button" onclick="openTenantDrawer('${d.id_desa}')" title="Edit Detail & Reset Password"
+                  class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition">
+                  <i class="fas fa-sliders"></i>
                 </button>
               </div>
             </td>
           </tr>
         `;
       }).join('');
+
+      // Kartu Mobile
+      mobileBox.innerHTML = filtered.map((d) => {
+        const namaDesa = d.nama_desa || d.nama_bumdes || d.id_desa;
+        const exp = getExpiryInfo(d);
+        const st = getDesaStats(d.id_desa);
+        return `
+          <div class="p-4 space-y-3 text-xs">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">${namaDesa}</div>
+                <div class="text-[11px] text-slate-500 mt-0.5 font-mono">${d.id_desa} • ${d.paket || 'Standar'}</div>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full border text-[10px] font-semibold ${exp.badgeClass}">${exp.label}</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-600 bg-slate-50 px-3 py-2 rounded-xl">
+              <span>${st.pelangganCount} Pelanggan</span>
+              <span>${st.petugasCount} Petugas</span>
+              <span>Exp: ${d.tgl_expired || '-'}</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5">
+              <button type="button" onclick="openSupportMode('${d.id_desa}')" class="py-2 rounded-lg bg-sky-600 text-white font-semibold text-center">Panel</button>
+              <button type="button" onclick="openOnboardingModal('${d.id_desa}')" class="py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold text-center">Info Login</button>
+              <button type="button" onclick="sendExpiryReminderWa('${d.id_desa}')" class="py-2 rounded-lg bg-emerald-100 text-emerald-700 font-semibold text-center">WA PIC</button>
+              <button type="button" onclick="openTenantDrawer('${d.id_desa}')" class="py-2 rounded-lg bg-slate-800 text-white font-semibold text-center">Edit</button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function openCreateDesaModal() {
-      document.getElementById('newIdDesa').value = nextSuggestion.id_desa || 'DESA-003';
-      document.getElementById('newKodePrefix').value = nextSuggestion.kode_prefix || 'DS3';
-      document.getElementById('previewSamplePlg').textContent = `${nextSuggestion.kode_prefix || 'DS3'}-PLG-001`;
-      document.getElementById('newNamaBumdes').value = '';
-      document.getElementById('newNamaDesa').value = '';
-      document.getElementById('newNamaUnit').value = 'Unit Air Bersih';
-      document.getElementById('newNoWa').value = '';
-      document.getElementById('newAlamatKop').value = '';
-      document.getElementById('newSubdomain').value = '';
-      document.getElementById('newLogoUrl').value = '';
-      document.getElementById('newLogoFile').value = '';
-      syncImagePreview('', 'newLogoPreview');
-      document.getElementById('newAdminPass').value = 'admin123';
-      document.getElementById('newTglBerakhir').value = '';
-      document.getElementById('newBuatSample').checked = true;
-      openModal('modalCreateDesa');
-    }
-
-    document.getElementById('createDesaForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('btnSubmitCreateDesa');
-      btn.disabled = true;
-      btn.textContent = 'Memproses...';
-
-      try {
-        const prefix = document.getElementById('newKodePrefix').value.trim().toUpperCase();
-        const payload = {
-          id_desa: document.getElementById('newIdDesa').value.trim().toUpperCase(),
-          kode_prefix: prefix,
-          nama_bumdes: document.getElementById('newNamaBumdes').value.trim(),
-          nama_desa: document.getElementById('newNamaDesa').value.trim(),
-          nama_unit: document.getElementById('newNamaUnit').value.trim(),
-          no_wa_admin: document.getElementById('newNoWa').value.trim(),
-          alamat_kop: document.getElementById('newAlamatKop').value.trim(),
-          subdomain: document.getElementById('newSubdomain').value.trim().toLowerCase(),
-          logo_url: document.getElementById('newLogoUrl').value.trim(),
-          admin_password: document.getElementById('newAdminPass').value.trim(),
-          tgl_berakhir: document.getElementById('newTglBerakhir').value,
-          buat_pelanggan_contoh: document.getElementById('newBuatSample').checked,
-          template_surat: {
-            jabatan_ttd: 'Ketua Unit Air Bersih',
-            nama_ttd: '',
-            format_nomor: `{{no}}/SPK-AIR/${prefix}/{{bulan}}/{{tahun}}`,
-            footer_nota: 'Simpan struk ini sebagai bukti pembayaran yang sah.',
-            isi_surat_peringatan: DEFAULT_SURAT_BODY
-          }
-        };
-
-        const { data, error } = await sb.rpc('masterCreateDesa', {
-          p_auth: getAuthPayload(),
-          p_payload: payload
-        });
-        if (error) throw new Error(error.message);
-        if (!data || data.status !== 'success') throw new Error(data?.message || 'Gagal menambah desa.');
-
-        closeModal('modalCreateDesa');
-        showToast(data.message);
-        await loadMasterData();
-
-        const c = data.credentials;
-        const appUrl = c.subdomain
-          ? `https://${c.subdomain}`
-          : `${getBaseAppUrl()}?desa=${c.kode_prefix.toLowerCase()}`;
-
-        const waMsg =
-`*AKSES APLIKASI TAGIHAN AIR BUMDES*
-Instansi: *${c.nama_bumdes}* (${c.nama_desa || c.id_desa})
-Link Aplikasi: ${appUrl}
-
-*1. Akun Admin Pengelola*
-• Username: \`${c.admin_username}\`
-• Password: \`${c.admin_password}\`
-
-*2. Akun Petugas Catat Meter*
-• Username: \`${c.petugas_username}\`
-• Password: \`${c.petugas_password}\`
-
-*3. Akun Uji Coba Portal Pelanggan*
-• ID Pelanggan: \`${c.pelanggan_id}\`
-• PIN: \`${c.pelanggan_pin}\`
-
-_Catatan: Demi keamanan, segera ubah password standar setelah login pertama._`;
-
-        document.getElementById('credentialTextBox').textContent = waMsg;
-        openModal('modalCredentials');
-      } catch (err) {
-        showToast(err.message, true);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Simpan & Aktifkan Desa';
-      }
-    });
-
-    function copyCredentialsText() {
-      const text = document.getElementById('credentialTextBox').textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        showToast('Pesan kredensial berhasil disalin ke clipboard!');
-      });
-    }
-
-    function switchEditTab(tab) {
-      ['profil', 'branding', 'surat'].forEach((name) => {
-        const btn = document.getElementById('tabBtn' + name.charAt(0).toUpperCase() + name.slice(1));
-        const panel = document.getElementById('tabPanel' + name.charAt(0).toUpperCase() + name.slice(1));
-        if (name === tab) {
-          btn.className = 'rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white cursor-pointer';
-          panel.classList.remove('hidden');
-        } else {
-          btn.className = 'rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 cursor-pointer';
-          panel.classList.add('hidden');
-        }
-      });
-    }
-
-    function openEditDesaModal(d) {
-      switchEditTab('profil');
-      document.getElementById('editIdDesa').value = d.id_desa;
-      document.getElementById('editDesaTitle').textContent = `${d.id_desa} (${d.kode_prefix})`;
-      document.getElementById('editNamaBumdes').value = d.nama_bumdes || '';
-      document.getElementById('editNamaDesa').value = d.nama_desa || '';
-      document.getElementById('editNamaUnit').value = d.nama_unit || 'Unit Air Bersih';
-      document.getElementById('editNoWa').value = d.no_wa_admin || '';
-      document.getElementById('editAlamatKop').value = d.alamat_kop || '';
-      document.getElementById('editStatusLangganan').value =
-        (d.status_langganan || '').toLowerCase() === 'aktif' ? 'Aktif' : 'Nonaktif';
-      document.getElementById('editTglBerakhir').value = d.tgl_berakhir || '';
-
-      document.getElementById('editSubdomain').value = d.subdomain || '';
-      document.getElementById('editLogoUrl').value = d.logo_url || '';
-      syncImagePreview(d.logo_url || '', 'editLogoPreview', 'editLogoEmpty');
-
-      const tpl = d.template_surat || {};
-      document.getElementById('tplJabatan').value = tpl.jabatan_ttd || 'Ketua Unit Air Bersih';
-      document.getElementById('tplNamaPejabat').value = tpl.nama_ttd || '';
-      document.getElementById('tplFormatNomor').value = tpl.format_nomor || `{{no}}/SPK-AIR/${d.kode_prefix}/{{bulan}}/{{tahun}}`;
-      document.getElementById('tplTtdUrl').value = tpl.ttd_url || '';
-      syncImagePreview(tpl.ttd_url || '', 'tplTtdPreview');
-      document.getElementById('tplFooterNota').value = tpl.footer_nota || 'Simpan struk ini sebagai bukti pembayaran yang sah.';
-      document.getElementById('tplIsiSuratPeringatan').value = tpl.isi_surat_peringatan || DEFAULT_SURAT_BODY;
-
-      openModal('modalEditDesa');
-    }
-
-    function insertTemplateVar(varText) {
-      const ta = document.getElementById('tplIsiSuratPeringatan');
-      const start = ta.selectionStart || 0;
-      const end = ta.selectionEnd || 0;
-      ta.value = ta.value.slice(0, start) + varText + ta.value.slice(end);
-      ta.focus();
-      ta.selectionStart = ta.selectionEnd = start + varText.length;
-    }
-
-    function previewSuratModal() {
-      const logoUrl = document.getElementById('editLogoUrl').value.trim();
-      const ttdUrl = document.getElementById('tplTtdUrl').value.trim();
-      const bumdes = document.getElementById('editNamaBumdes').value.trim() || 'BUMDes Pengelola Air';
-      const desa = document.getElementById('editNamaDesa').value.trim() || 'Desa Contoh';
-      const unit = document.getElementById('editNamaUnit').value.trim() || 'Unit Air Bersih';
-      const alamat = document.getElementById('editAlamatKop').value.trim() || '-';
-      const formatNomor = document.getElementById('tplFormatNomor').value.trim() || '001/SPK-AIR/XI/2026';
-      const jabatan = document.getElementById('tplJabatan').value.trim() || 'Ketua Unit Air Bersih';
-      const pejabat = document.getElementById('tplNamaPejabat').value.trim() || '( .................................... )';
-      const rawBody = document.getElementById('tplIsiSuratPeringatan').value || DEFAULT_SURAT_BODY;
-
-      const sampleVars = {
-        no: '014',
-        prefix: 'DS2',
-        bulan: 'XI',
-        tahun: '2026',
-        nama_bumdes: bumdes,
-        nama_desa: desa,
-        nama_unit: unit,
-        nama_pelanggan: 'Budi Santoso',
-        id_pelanggan: 'DS2-PLG-001',
-        alamat: 'Dusun Krajan RT 001/001',
-        total_tunggakan: 'Rp 75.000',
-        jatuh_tempo: '20 Desember 2026'
+    // 6. SIMPAN PENGUMUMAN GLOBAL
+    async function saveGlobalBroadcast() {
+      if (!sbClient) return;
+      const payload = {
+        id: 1,
+        aktif: document.getElementById('broadcastAktif').checked,
+        tipe: document.getElementById('broadcastTipe').value,
+        judul: document.getElementById('broadcastJudul').value.trim(),
+        isi: document.getElementById('broadcastIsi').value.trim(),
+        updated_at: new Date().toISOString()
       };
 
-      const render = (str) => str.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, k) => sampleVars[k] || '');
-
-      const prvLogo = document.getElementById('prvLogo');
-      if (logoUrl) {
-        prvLogo.src = logoUrl;
-        prvLogo.classList.remove('hidden');
-      } else {
-        prvLogo.classList.add('hidden');
+      const { error } = await sbClient.from('tbl_pengumuman_global').upsert(payload);
+      if (error) {
+        Swal.fire({ icon: 'error', title: 'Gagal Menyimpan Broadcast', text: error.message });
+        return;
       }
-
-      const prvTtd = document.getElementById('prvTtd');
-      const prvSpacer = document.getElementById('prvTtdSpacer');
-      if (ttdUrl) {
-        prvTtd.src = ttdUrl;
-        prvTtd.classList.remove('hidden');
-        prvSpacer.classList.add('hidden');
-      } else {
-        prvTtd.classList.add('hidden');
-        prvSpacer.classList.remove('hidden');
-      }
-
-      document.getElementById('prvBumdes').textContent = bumdes;
-      document.getElementById('prvDesaUnit').textContent = `${unit} — ${desa}`;
-      document.getElementById('prvAlamat').textContent = alamat;
-      document.getElementById('prvNomor').textContent = render(formatNomor);
-      document.getElementById('prvBody').textContent = render(rawBody);
-      document.getElementById('prvJabatan').textContent = jabatan;
-      document.getElementById('prvPejabat').textContent = pejabat;
-
-      openModal('modalPreviewSurat');
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Pengumuman global diperbarui', showConfirmButton: false, timer: 1800 });
     }
 
-    function extendExpiryMonths(months) {
-      const input = document.getElementById('editTglBerakhir');
+    // 7. SLIDE-OVER DRAWER EDIT DESA & RESET PASSWORD ADMIN
+    function openTenantDrawer(idDesa) {
+      const desa = allDesaList.find((d) => String(d.id_desa) === String(idDesa));
+      if (!desa) return;
+
+      document.getElementById('editIdDesa').value = desa.id_desa;
+      document.getElementById('drawerKodeBadge').textContent = desa.id_desa;
+      document.getElementById('drawerTitle').textContent = desa.nama_desa || desa.nama_bumdes || desa.id_desa;
+      document.getElementById('editNamaDesa').value = desa.nama_desa || desa.nama_bumdes || '';
+      document.getElementById('editKecamatan').value = desa.kecamatan || '';
+      document.getElementById('editKabupaten').value = desa.kabupaten || '';
+      document.getElementById('editAlamat').value = desa.alamat || '';
+      document.getElementById('editPaket').value = desa.paket || 'Standar';
+      document.getElementById('editMaxPelanggan').value = desa.max_pelanggan || 300;
+      document.getElementById('editNoWaPic').value = desa.no_wa_pic || '';
+      document.getElementById('editCustomDomain').value = desa.custom_domain || '';
+      document.getElementById('editTglExpired').value = desa.tgl_expired || '';
+      document.getElementById('editStatus').value = (String(desa.status || 'aktif').toLowerCase() === 'nonaktif') ? 'nonaktif' : 'aktif';
+      document.getElementById('editCatatan').value = desa.catatan || '';
+
+      renderDrawerAdminList(desa.id_desa);
+      document.getElementById('tenantDrawer').classList.remove('hidden');
+    }
+
+    function closeTenantDrawer() {
+      document.getElementById('tenantDrawer').classList.add('hidden');
+    }
+
+    function extendExpiryDays(days) {
+      const input = document.getElementById('editTglExpired');
       const base = input.value ? new Date(input.value + 'T00:00:00') : new Date();
-      base.setMonth(base.getMonth() + months);
-      input.value = base.toISOString().slice(0, 10);
-      document.getElementById('editStatusLangganan').value = 'Aktif';
+      const now = new Date();
+      const startDate = base < now ? now : base;
+      startDate.setDate(startDate.getDate() + days);
+      input.value = startDate.toISOString().split('T')[0];
+      document.getElementById('editStatus').value = 'aktif';
     }
 
-    document.getElementById('editDesaForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('btnSubmitEditDesa');
-      btn.disabled = true;
-
-      try {
-        const payload = {
-          id_desa: document.getElementById('editIdDesa').value,
-          nama_bumdes: document.getElementById('editNamaBumdes').value.trim(),
-          nama_desa: document.getElementById('editNamaDesa').value.trim(),
-          nama_unit: document.getElementById('editNamaUnit').value.trim(),
-          no_wa_admin: document.getElementById('editNoWa').value.trim(),
-          alamat_kop: document.getElementById('editAlamatKop').value.trim(),
-          status_langganan: document.getElementById('editStatusLangganan').value,
-          tgl_berakhir: document.getElementById('editTglBerakhir').value,
-          subdomain: document.getElementById('editSubdomain').value.trim().toLowerCase(),
-          logo_url: document.getElementById('editLogoUrl').value.trim(),
-          template_surat: {
-            jabatan_ttd: document.getElementById('tplJabatan').value.trim(),
-            nama_ttd: document.getElementById('tplNamaPejabat').value.trim(),
-            format_nomor: document.getElementById('tplFormatNomor').value.trim(),
-            ttd_url: document.getElementById('tplTtdUrl').value.trim(),
-            footer_nota: document.getElementById('tplFooterNota').value.trim(),
-            isi_surat_peringatan: document.getElementById('tplIsiSuratPeringatan').value
-          }
-        };
-
-        const { data, error } = await sb.rpc('masterUpdateDesa', {
-          p_auth: getAuthPayload(),
-          p_payload: payload
-        });
-        if (error) throw new Error(error.message);
-        if (!data || data.status !== 'success') throw new Error(data?.message || 'Gagal memperbarui data.');
-
-        closeModal('modalEditDesa');
-        showToast(data.message);
-        await loadMasterData();
-      } catch (err) {
-        showToast(err.message, true);
-      } finally {
-        btn.disabled = false;
+    function renderDrawerAdminList(idDesa) {
+      const admins = allUsersList.filter(
+        (u) => String(u.id_desa) === String(idDesa) && String(u.role).toLowerCase().includes('admin')
+      );
+      const box = document.getElementById('drawerAdminList');
+      if (!admins.length) {
+        box.innerHTML = `<div class="p-3 rounded-xl bg-amber-50 text-amber-700 text-[11px]">Belum ada akun admin di desa ini. Klik "+ Tambah Admin".</div>`;
+        return;
       }
-    });
-
-    function openResetAdminModal(idDesa, username) {
-      document.getElementById('resetIdDesa').value = idDesa;
-      document.getElementById('resetTargetInfo').textContent = `${username} (${idDesa})`;
-      document.getElementById('resetPassBaru').value = 'admin123';
-      openModal('modalResetAdmin');
+      box.innerHTML = admins.map((adm) => `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+          <div>
+            <div class="font-bold text-slate-800">${adm.username}</div>
+            <div class="text-[10px] text-slate-500">${adm.nama || adm.nama_lengkap || 'Admin BUMDes'} • Role: ${adm.role}</div>
+          </div>
+          <button type="button" onclick="resetAdminPassword('${adm.username}', '${idDesa}')"
+            class="px-2.5 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold text-[10px] transition">
+            Reset Password
+          </button>
+        </div>
+      `).join('');
     }
 
-    document.getElementById('resetAdminForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      try {
-        const { data, error } = await sb.rpc('masterResetAdminPassword', {
-          p_auth: getAuthPayload(),
-          p_id_desa: document.getElementById('resetIdDesa').value,
-          p_password_baru: document.getElementById('resetPassBaru').value.trim()
-        });
-        if (error) throw new Error(error.message);
-        if (!data || data.status !== 'success') throw new Error(data?.message || 'Gagal mereset password.');
+    async function resetAdminPassword(username, idDesa) {
+      const { value: newPass } = await Swal.fire({
+        title: `Reset Password: ${username}`,
+        input: 'text',
+        inputLabel: 'Masukkan password baru untuk admin desa ini',
+        inputValue: 'admin123',
+        showCancelButton: true,
+        confirmButtonText: 'Simpan Password',
+        confirmButtonColor: '#0284c7'
+      });
 
-        closeModal('modalResetAdmin');
-        showToast(data.message);
-      } catch (err) {
-        showToast(err.message, true);
+      if (!newPass) return;
+      const { error } = await sbClient
+        .from('tbl_users')
+        .update({ password: newPass.trim() })
+        .eq('username', username)
+        .eq('id_desa', idDesa);
+
+      if (error) {
+        Swal.fire({ icon: 'error', title: 'Gagal Reset', text: error.message });
+        return;
       }
+      await loadAllMasterData(false);
+      renderDrawerAdminList(idDesa);
+      Swal.fire({ icon: 'success', title: 'Password Diperbarui', text: `Password ${username} berhasil diubah menjadi "${newPass.trim()}".`, confirmButtonColor: '#0284c7' });
+    }
+
+    async function promptAddAdminForCurrentDesa() {
+      const idDesa = document.getElementById('editIdDesa').value;
+      const { value: creds } = await Swal.fire({
+        title: `Tambah Admin (${idDesa})`,
+        html: `
+          <input id="swalNewAdmUser" class="swal2-input" placeholder="Username baru (unik)" style="font-size:13px;" />
+          <input id="swalNewAdmPass" class="swal2-input" value="admin123" placeholder="Password awal" style="font-size:13px;" />
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Buat Akun',
+        confirmButtonColor: '#0284c7',
+        preConfirm: () => ({
+          username: document.getElementById('swalNewAdmUser').value.trim(),
+          password: document.getElementById('swalNewAdmPass').value.trim()
+        })
+      });
+
+      if (!creds || !creds.username || !creds.password) return;
+      const sampleUser = allUsersList[0] || {};
+      const insertObj = { id_desa: idDesa, username: creds.username, password: creds.password, role: 'admin' };
+      if ('nama' in sampleUser) insertObj.nama = 'Admin ' + idDesa;
+
+      const { error } = await sbClient.from('tbl_users').insert(insertObj);
+      if (error) {
+        Swal.fire({ icon: 'error', title: 'Gagal Membuat Akun', text: error.message });
+        return;
+      }
+      await loadAllMasterData(false);
+      renderDrawerAdminList(idDesa);
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Akun admin ditambahkan', showConfirmButton: false, timer: 1800 });
+    }
+
+    async function submitEditTenant() {
+      const idDesa = document.getElementById('editIdDesa').value;
+      const existing = allDesaList.find((d) => String(d.id_desa) === String(idDesa)) || {};
+      const namaBaru = document.getElementById('editNamaDesa').value.trim();
+
+      const updateData = {
+        alamat: document.getElementById('editAlamat').value.trim(),
+        kecamatan: document.getElementById('editKecamatan').value.trim(),
+        kabupaten: document.getElementById('editKabupaten').value.trim(),
+        paket: document.getElementById('editPaket').value,
+        max_pelanggan: Number(document.getElementById('editMaxPelanggan').value) || 300,
+        no_wa_pic: document.getElementById('editNoWaPic').value.trim(),
+        custom_domain: document.getElementById('editCustomDomain').value.trim().toLowerCase(),
+        tgl_expired: document.getElementById('editTglExpired').value || null,
+        status: document.getElementById('editStatus').value,
+        catatan: document.getElementById('editCatatan').value.trim(),
+        updated_at: new Date().toISOString()
+      };
+
+      if ('nama_desa' in existing) updateData.nama_desa = namaBaru;
+      if ('nama_bumdes' in existing) updateData.nama_bumdes = namaBaru;
+      if ('is_active' in existing) updateData.is_active = updateData.status === 'aktif';
+
+      const { error } = await sbClient.from('tbl_desa').update(updateData).eq('id_desa', idDesa);
+      if (error) {
+        Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: error.message });
+        return;
+      }
+
+      closeTenantDrawer();
+      await loadAllMasterData(false);
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Data desa diperbarui', showConfirmButton: false, timer: 1800 });
+    }
+
+    async function deleteTenantConfirm() {
+      const idDesa = document.getElementById('editIdDesa').value;
+      const res = await Swal.fire({
+        icon: 'warning',
+        title: `Hapus Desa ${idDesa}?`,
+        text: 'Data profil desa dan daftar user milik desa ini akan dihapus permanen.',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        confirmButtonText: 'Ya, Hapus Permanen'
+      });
+      if (!res.isConfirmed) return;
+
+      await sbClient.from('tbl_users').delete().eq('id_desa', idDesa);
+      const { error } = await sbClient.from('tbl_desa').delete().eq('id_desa', idDesa);
+      if (error) {
+        Swal.fire({ icon: 'error', title: 'Gagal Menghapus', text: error.message });
+        return;
+      }
+      closeTenantDrawer();
+      await loadAllMasterData(false);
+    }
+
+    // 8. DAFTARKAN KLIEN BARU
+    function openNewTenantModal() {
+      document.getElementById('createTenantForm').reset();
+      document.getElementById('newAdminPass').value = 'admin123';
+      document.getElementById('newTenantModal').classList.remove('hidden');
+      document.getElementById('newTenantModal').classList.add('flex');
+    }
+
+    function closeNewTenantModal() {
+      document.getElementById('newTenantModal').classList.add('hidden');
+      document.getElementById('newTenantModal').classList.remove('flex');
+    }
+
+    document.getElementById('createTenantForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const idDesa = document.getElementById('newIdDesa').value.trim();
+      const namaDesa = document.getElementById('newNamaDesa').value.trim();
+      const paket = document.getElementById('newPaket').value;
+      const adminUser = document.getElementById('newAdminUser').value.trim();
+      const adminPass = document.getElementById('newAdminPass').value.trim();
+      const maxPel = paket === 'Pro Unlimited' ? 99999 : paket === 'Custom Domain' ? 500 : 300;
+
+      const expDate = new Date();
+      expDate.setFullYear(expDate.getFullYear() + 1);
+
+      const sampleDesa = allDesaList[0] || {};
+      const desaPayload = {
+        id_desa: idDesa,
+        alamat: document.getElementById('newAlamat').value.trim(),
+        kecamatan: document.getElementById('newKecamatan').value.trim(),
+        no_wa_pic: document.getElementById('newNoWa').value.trim(),
+        paket,
+        max_pelanggan: maxPel,
+        tgl_expired: expDate.toISOString().split('T')[0],
+        status: 'aktif'
+      };
+      if ('nama_bumdes' in sampleDesa && !('nama_desa' in sampleDesa)) desaPayload.nama_bumdes = namaDesa;
+      else desaPayload.nama_desa = namaDesa;
+
+      const { error: errDesa } = await sbClient.from('tbl_desa').insert(desaPayload);
+      if (errDesa) {
+        Swal.fire({ icon: 'error', title: 'Gagal Mendaftarkan Desa', text: errDesa.message });
+        return;
+      }
+
+      const sampleUser = allUsersList[0] || {};
+      const userPayload = { id_desa: idDesa, username: adminUser, password: adminPass, role: 'admin' };
+      if ('nama' in sampleUser) userPayload.nama = 'Admin ' + namaDesa;
+
+      const { error: errUser } = await sbClient.from('tbl_users').insert(userPayload);
+      if (errUser) {
+        Swal.fire({ icon: 'warning', title: 'Desa Dibuat, Akun Admin Gagal', text: errUser.message });
+      }
+
+      closeNewTenantModal();
+      await loadAllMasterData(false);
+      openOnboardingModal(idDesa);
     });
 
-    document.getElementById('gantiPassMasterForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const newPass = document.getElementById('masterPassBaru').value.trim();
-      try {
-        const { data, error } = await sb.rpc('masterGantiPassword', {
-          p_auth: getAuthPayload(),
-          p_password_baru: newPass
-        });
-        if (error) throw new Error(error.message);
-        if (!data || data.status !== 'success') throw new Error(data?.message || 'Gagal mengubah password.');
+    // 9. GENERATOR PAKET ONBOARDING & PENGINGAT WA
+    function openOnboardingModal(idDesa) {
+      const desa = allDesaList.find((d) => String(d.id_desa) === String(idDesa));
+      if (!desa) return;
 
-        masterAuth.password = newPass;
-        sessionStorage.setItem(SESSION_KEY, JSON.stringify(masterAuth));
-        document.getElementById('masterPassBaru').value = '';
-        closeModal('modalPasswordMaster');
-        showToast(data.message);
-      } catch (err) {
-        showToast(err.message, true);
+      const st = getDesaStats(idDesa);
+      const adm = st.adminList[0] || { username: '(cek di panel)', password: '(sesuai pengaturan)' };
+      const baseUrl = desa.custom_domain
+        ? `https://${desa.custom_domain}`
+        : `${window.location.origin}/?${encodeURIComponent(idDesa)}`;
+
+      const msg =
+`*SERAH TERIMA SISTEM SMART AIR DESA*
+*${desa.nama_desa || desa.nama_bumdes || idDesa}*
+
+Yth. Pengurus BUMDes / Pengelola Air Bersih,
+Berikut akses operasional sistem air bersih desa Anda:
+
+1. *Tautan Aplikasi (Web & HP Petugas/Warga):*
+   ${baseUrl}
+   _(Untuk HP Petugas: buka tautan di Chrome lalu pilih "Tambahkan ke Layar Utama")_
+
+2. *Akun Admin Utama (Komputer Kasir / .exe):*
+   • Kode Desa : ${idDesa}
+   • Username  : ${adm.username}
+   • Password  : ${adm.password}
+
+3. *Masa Aktif Langganan:*
+   • Paket     : ${desa.paket || 'Standar'} (Kuota ${desa.max_pelanggan || 300} pelanggan)
+   • Berlaku s/d: ${desa.tgl_expired || '-'}
+
+_Sistem ini dikembangkan oleh TitiWeb Lab, By Nuri Hartanto_`;
+
+      document.getElementById('onboardingTextPreview').value = msg;
+
+      const btnWa = document.getElementById('btnSendOnboardingWa');
+      btnWa.onclick = () => {
+        const waNum = formatWaNumber(desa.no_wa_pic);
+        const waUrl = waNum
+          ? `https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`
+          : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+        window.open(waUrl, '_blank');
+      };
+
+      document.getElementById('onboardingModal').classList.remove('hidden');
+      document.getElementById('onboardingModal').classList.add('flex');
+    }
+
+    function closeOnboardingModal() {
+      document.getElementById('onboardingModal').classList.add('hidden');
+      document.getElementById('onboardingModal').classList.remove('flex');
+    }
+
+    function copyOnboardingText() {
+      const ta = document.getElementById('onboardingTextPreview');
+      ta.select();
+      navigator.clipboard.writeText(ta.value);
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Pesan serah terima disalin', showConfirmButton: false, timer: 1600 });
+    }
+
+    function sendExpiryReminderWa(idDesa) {
+      const desa = allDesaList.find((d) => String(d.id_desa) === String(idDesa));
+      if (!desa) return;
+
+      const exp = getExpiryInfo(desa);
+      const msg =
+`Halo Pengurus *${desa.nama_desa || desa.nama_bumdes || idDesa}*,
+Kami dari *TitiWeb Lab* menginformasikan status layanan *Smart Air Desa* (${desa.paket || 'Standar'}):
+
+• Kode Tenant : ${idDesa}
+• Jatuh Tempo : ${desa.tgl_expired || '-'} (${exp.label})
+
+Mohon konfirmasi untuk perpanjangan layanan agar operasional pencatatan meter dan portal pembayaran warga tetap berjalan lancar. Terima kasih.`;
+
+      const waNum = formatWaNumber(desa.no_wa_pic);
+      const waUrl = waNum
+        ? `https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`
+        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    function formatWaNumber(raw) {
+      const digits = String(raw || '').replace(/\D/g, '');
+      if (!digits) return '';
+      if (digits.startsWith('0')) return '62' + digits.slice(1);
+      if (digits.startsWith('8')) return '62' + digits;
+      return digits;
+    }
+
+    // 10. 1-CLICK SUPPORT ACCESS (BUKA PANEL DESA DI TAB BARU)
+    function openSupportMode(idDesa) {
+      const url = `${window.location.origin}/?${encodeURIComponent(idDesa)}`;
+      window.open(url, '_blank');
+    }
+
+    // Cek sesi unlock saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem('titiweb_master_unlocked') === '1') {
+        document.getElementById('masterLockScreen').classList.add('hidden');
+        initSupabaseAndLoad();
       }
     });
   </script>
